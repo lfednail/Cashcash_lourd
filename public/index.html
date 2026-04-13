@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CashCash — Connexion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #f8fafc;
+      color: #0a3c2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Animated background */
+    .bg-animated {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg-animated::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,103,79,0.06) 0%, transparent 70%);
+      top: -200px; left: -200px;
+      animation: float1 8s ease-in-out infinite;
+    }
+    .bg-animated::after {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(218,147,176,0.06) 0%, transparent 70%);
+      bottom: -150px; right: -150px;
+      animation: float2 10s ease-in-out infinite;
+    }
+    .bg-orb {
+      position: absolute;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(247,192,181,0.08) 0%, transparent 70%);
+      bottom: 20%; left: 60%;
+      animation: float3 12s ease-in-out infinite;
+    }
+
+    @keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
+    @keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-50px,-30px)} }
+    @keyframes float3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-40px)} }
+
+    /* Grid pattern */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,0,0,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Split layout */
+    .login-container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      width: 100%;
+      max-width: 900px;
+      height: 580px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+      animation: container-in 0.6s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    @keyframes container-in {
+      from { opacity: 0; transform: translateY(30px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Left panel — branding */
+    .login-left {
+      width: 340px;
+      flex-shrink: 0;
+      background: linear-gradient(160deg, #00674f 0%, #0a3c2a 100%);
+      padding: 48px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .left-top { position: relative; z-index: 1; }
+
+    .logo-img {
+      max-width: 140px;
+      max-height: 80px;
+      object-fit: contain;
+      margin-bottom: 24px;
+      display: block;
+      border-radius: 8px;
+    }
+
+    .left-tagline {
+      font-size: 1.6rem;
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+
+    .left-tagline span {
+      background: linear-gradient(90deg, #da93b0, #f7c0b5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .left-desc {
+      margin-top: 14px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.65;
+    }
+
+    .feature-pills {
+      margin-top: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .pill-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #da93b0;
+      flex-shrink: 0;
+    }
+
+    .left-bottom {
+      position: relative;
+      z-index: 1;
+    }
+
+    .version-info {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.6);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .version-badge {
+      background: rgba(218,147,176,0.2);
+      border: 1px solid rgba(218,147,176,0.4);
+      color: #da93b0;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+
+    /* Right panel — form */
+    .login-right {
+      flex: 1;
+      padding: 48px 44px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .form-head { margin-bottom: 32px; }
+    .form-head h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #00674f;
+      letter-spacing: -0.5px;
+    }
+    .form-head p { font-size: 0.85rem; color: #004d3b; margin-top: 6px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
+
+    .form-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #004d3b;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .input-wrapper { position: relative; }
+
+    .input-icon {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      width: 16px; height: 16px;
+      color: #004d3b;
+      pointer-events: none;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      color: #0a3c2a;
+      font-size: 0.875rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: all .2s;
+    }
+
+    .form-input:focus {
+      border-color: #00674f;
+      box-shadow: 0 0 0 3px rgba(0,103,79,0.15);
+    }
+
+    .form-input::placeholder { color: #2a6952; }
+
+    .show-pass-btn {
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #004d3b;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      transition: color .2s;
+    }
+    .show-pass-btn:hover { color: #00674f; }
+    .show-pass-btn svg { width: 16px; height: 16px; }
+
+    .error-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.3);
+      border-radius: 10px;
+      color: #f87171;
+      font-size: 0.82rem;
+      margin-bottom: 18px;
+      animation: shake .3s ease;
+    }
+
+    .error-box.hidden { display: none; }
+
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}
+    }
+
+    .error-box svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #00674f, #004d3b);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all .2s;
+      box-shadow: 0 4px 20px rgba(0,103,79,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-login:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,103,79,0.35);
+    }
+
+    .btn-login:active:not(:disabled) { transform: translateY(0); }
+
+    .btn-login:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .btn-login svg { width: 18px; height: 18px; }
+
+    .spinner-sm {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .login-hint {
+      margin-top: 20px;
+      padding: 12px 14px;
+      background: rgba(247,192,181,0.15);
+      border: 1px solid rgba(247,192,181,0.5);
+      border-radius: 8px;
+      font-size: 0.75rem;
+      color: #0a3c2a;
+      line-height: 1.6;
+    }
+    .login-hint strong { color: #00674f; }
+
+    /* DB status indicator */
+    .db-status {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: #004d3b;
+    }
+    .db-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #2a6952;
+      transition: background .3s;
+    }
+    .db-dot.connected { background: #00674f; box-shadow: 0 0 6px rgba(0,103,79,0.5); }
+    .db-dot.error { background: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-animated"><div class="bg-orb"></div></div>
+
+  <div class="login-container">
+    <!-- Left Brand Panel -->
+    <div class="login-left">
+      <div class="left-top">
+        <img src="images/cashcash-logov3.png" alt="CashCash Logo" class="logo-img" />
+        <div class="left-tagline">
+          Gestion des <span>Interventions</span> en temps réel
+        </div>
+        <div class="left-desc">
+          Plateforme de maintenance CashCash — Coordonnez vos techniciens, suivez vos contrats et pilotez vos agences.
+        </div>
+        <div class="feature-pills">
+          <div class="feature-pill"><div class="pill-dot"></div>Gestion des interventions</div>
+          <div class="feature-pill"><div class="pill-dot"></div>Suivi des contrats</div>
+          <div class="feature-pill"><div class="pill-dot"></div>Statistiques par agence</div>
+          <div class="feature-pill"><div class="pill-dot"></div>Double rôle: Gestionnaire & Technicien</div>
+        </div>
+      </div>
+      <div class="left-bottom">
+        <div class="version-info">
+          <span class="version-badge">v3.0</span>
+          CashCash Desktop — Jalon 3
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Form Panel -->
+    <div class="login-right">
+      <div class="form-head">
+        <h2>Connexion</h2>
+        <p>Entrez vos identifiants pour accéder à votre espace</p>
+      </div>
+
+      <div class="error-box hidden" id="errorBox">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="errorText">Erreur de connexion</span>
+      </div>
+
+      <form id="loginForm" autocomplete="off">
+        <div class="form-group">
+          <label class="form-label">Adresse Email</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <input type="email" class="form-input" id="emailInput" placeholder="jean.dupont@cashcash.fr" required autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mot de passe</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input type="password" class="form-input" id="passwordInput" placeholder="••••••••••" required autocomplete="off" />
+            <button type="button" class="show-pass-btn" id="togglePass" title="Afficher/Masquer">
+              <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login" id="loginBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="loginIcon">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+          <span id="loginBtnText">Se connecter</span>
+        </button>
+      </form>
+
+      <div class="login-hint">
+        <strong>Comptes de démonstration :</strong><br/>
+        Gestionnaire : <strong>jean.dupont@cashcash.fr</strong> / <strong>password123</strong><br/>
+        Technicien : <strong>luc.martin@cashcash.fr</strong> / <strong>password123</strong>
+      </div>
+
+      <div class="db-status">
+        <div class="db-dot" id="dbDot"></div>
+        <span id="dbStatusText">Vérification de la connexion...</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://127.0.0.1:8765';
+
+    // Check DB connectivity
+    async function checkDB() {
+      try {
+        const res = await fetch(`${API}/api/health`);
+        const data = await res.json();
+        if (data.db === 'connected') {
+          document.getElementById('dbDot').className = 'db-dot connected';
+          document.getElementById('dbStatusText').textContent = 'Base de données connectée';
+        } else {
+          throw new Error('db error');
+        }
+      } catch {
+        document.getElementById('dbDot').className = 'db-dot error';
+        document.getElementById('dbStatusText').textContent = 'Impossible de se connecter à la base de données';
+      }
+    }
+
+    // Toggle password visibility
+    document.getElementById('togglePass').addEventListener('click', () => {
+      const inp = document.getElementById('passwordInput');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    });
+
+    // Login form
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email    = document.getElementById('emailInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+      const btn      = document.getElementById('loginBtn');
+      const btnText  = document.getElementById('loginBtnText');
+      const icon     = document.getElementById('loginIcon');
+      const errBox   = document.getElementById('errorBox');
+      const errText  = document.getElementById('errorText');
+
+      // Loading state
+      btn.disabled = true;
+      icon.style.display = 'none';
+      btnText.textContent = 'Connexion en cours...';
+      btn.insertAdjacentHTML('afterbegin', '<div class="spinner-sm" id="btnSpinner"></div>');
+      errBox.classList.add('hidden');
+
+      try {
+        const res  = await fetch(`${API}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Erreur de connexion');
+        }
+
+        // Store user session
+        localStorage.setItem('cashcash_user', JSON.stringify(data));
+
+        // Redirect based on role
+        if (data.role === 'GESTIONNAIRE') {
+          window.location.href = 'gestionnaire.html';
+        } else if (data.role === 'TECHNICIEN') {
+          window.location.href = 'technicien.html';
+        } else {
+          throw new Error('Rôle inconnu');
+        }
+      } catch (err) {
+        errText.textContent = err.message;
+        errBox.classList.remove('hidden');
+        btn.disabled = false;
+        icon.style.display = 'block';
+        btnText.textContent = 'Se connecter';
+        document.getElementById('btnSpinner')?.remove();
+      }
+    });
+
+    // Auto-check on load
+    checkDB();
+    setInterval(checkDB, 10000);
+  </script>
+</body>
+</html>

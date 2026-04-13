@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CashCash — Espace Gestionnaire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="app-layout">
+
+  <!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="images/cashcash-logov3.png" alt="CashCash Logo" style="max-height: 36px; object-fit: contain; border-radius: 4px;" />
+      <div class="brand-text">
+        <span class="brand-name">CashCash</span>
+        <span class="brand-sub">Gestionnaire</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Navigation</span>
+
+      <div class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Tableau de bord
+      </div>
+
+      <div class="nav-item" data-page="clients" onclick="switchPage('clients')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Clients
+        <span class="nav-badge" id="badgeClients">0</span>
+      </div>
+
+      <div class="nav-item" data-page="techniciens" onclick="switchPage('techniciens')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+        Techniciens
+        <span class="nav-badge" id="badgeTechs">0</span>
+      </div>
+
+      <div class="nav-item" data-page="interventions" onclick="switchPage('interventions')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        Interventions
+      </div>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar" id="userAvatar">G</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Chargement...</div>
+          <div class="user-role" id="userAgence">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Déconnexion">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════ MAIN ═══════════════════════ -->
+  <main class="main-content">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Tableau de bord</div>
+        <div class="topbar-subtitle" id="topbarSub">Espace Gestionnaire</div>
+      </div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-badge">
+        <div class="topbar-badge-dot"></div>
+        <span id="topbarAgence">—</span>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- ════════ PAGE: DASHBOARD ════════ -->
+      <div class="page active" id="page-dashboard">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1 class="page-title">Tableau de bord</h1>
+            <p class="page-desc">Statistiques mensuelles de votre agence</p>
+          </div>
+          <div class="month-filter">
+            <label>Mois</label>
+            <select id="filterMonth">
+              <option value="1">Janvier</option><option value="2">Février</option>
+              <option value="3">Mars</option><option value="4">Avril</option>
+              <option value="5">Mai</option><option value="6">Juin</option>
+              <option value="7">Juillet</option><option value="8">Août</option>
+              <option value="9">Septembre</option><option value="10">Octobre</option>
+              <option value="11">Novembre</option><option value="12">Décembre</option>
+            </select>
+            <label>Année</label>
+            <select id="filterYear">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="loadStats()">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px">
+                <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+              Actualiser
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="generateRelancesPDF()" style="background:var(--bg-app);border-color:var(--border)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+              </svg>
+              PDF Relances
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+          <div class="stat-card" style="--stat-color: #22c55e; --stat-bg: rgba(34,197,94,.12);">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+            </div>
+            <div class="stat-label">Interventions</div>
+            <div class="stat-value" id="statInterventions">—</div>
+            <div class="stat-unit">ce mois-ci</div>
+          </div>
+
+          <div class="stat-card" style="--stat-color: #3b82f6; --stat-bg: rgba(59,130,246,.12);">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="stat-label">Distance parcourue</div>
+            <div class="stat-value" id="statDistance">—</div>
+            <div class="stat-unit">kilomètres (A/R)</div>
+          </div>
+
+          <div class="stat-card" style="--stat-color: #a78bfa; --stat-bg: rgba(167,139,250,.12);">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <div class="stat-label">Temps total</div>
+            <div class="stat-value" id="statTemps">—</div>
+            <div class="stat-unit" id="statTempsUnit">minutes</div>
+          </div>
+        </div>
+
+        <!-- Recent interventions + quick summary -->
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Dernières interventions</span>
+              <button class="btn btn-secondary btn-sm" onclick="switchPage('interventions')">Voir tout</button>
+            </div>
+            <div class="card-body-flush">
+              <div id="recentInterventions"><div class="loading"><div class="spinner"></div>Chargement...</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Résumé de l'agence</span>
+            </div>
+            <div class="card-body">
+              <div class="detail-list" id="agenceSummary">
+                <div class="detail-row">
+                  <span class="detail-label">Agence</span>
+                  <span class="detail-value" id="sumAgence">—</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Clients suivis</span>
+                  <span class="detail-value" id="sumClients">—</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Techniciens</span>
+                  <span class="detail-value" id="sumTechs">—</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Gestionnaire</span>
+                  <span class="detail-value" id="sumGest">—</span>
+                </div>
+              </div>
+              <button class="btn btn-primary" style="width:100%;margin-top:20px" onclick="openModalNewIntervention()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Nouvelle intervention
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════ PAGE: CLIENTS ════════ -->
+      <div class="page" id="page-clients">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1 class="page-title">Clients</h1>
+            <p class="page-desc">Gestion des clients de votre agence</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModalNewIntervention()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Assigner intervention
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Liste des clients</span>
+            <div class="filter-bar">
+              <div class="search-box">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" class="form-control" id="searchClients" placeholder="Rechercher un client..." oninput="filterClients(this.value)" style="width:240px"/>
+              </div>
+            </div>
+          </div>
+          <div class="card-body-flush">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Raison Sociale</th>
+                    <th>SIREN</th>
+                    <th>Téléphone</th>
+                    <th>Distance</th>
+                    <th>Contrats</th>
+                    <th>Matériels</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="clientsTable">
+                  <tr><td colspan="7"><div class="loading"><div class="spinner"></div>Chargement...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════ PAGE: TECHNICIENS ════════ -->
+      <div class="page" id="page-techniciens">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1 class="page-title">Techniciens</h1>
+            <p class="page-desc">Équipes de votre agence</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Liste des techniciens</span>
+          </div>
+          <div class="card-body-flush">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Matricule</th>
+                    <th>Nom complet</th>
+                    <th>Qualification</th>
+                    <th>Obtention</th>
+                    <th>Téléphone mobile</th>
+                    <th>Interventions</th>
+                    <th>Embauche</th>
+                  </tr>
+                </thead>
+                <tbody id="techniciensTable">
+                  <tr><td colspan="7"><div class="loading"><div class="spinner"></div>Chargement...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════ PAGE: INTERVENTIONS ════════ -->
+      <div class="page" id="page-interventions">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1 class="page-title">Interventions</h1>
+            <p class="page-desc">Toutes les interventions planifiées</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModalNewIntervention()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Nouvelle intervention
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Historique des interventions</span>
+          </div>
+          <div class="card-body-flush">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Date & Heure</th>
+                    <th>Client</th>
+                    <th>Technicien</th>
+                    <th>Adresse</th>
+                    <th>Contrôles</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody id="interventionsTable">
+                  <tr><td colspan="7"><div class="loading"><div class="spinner"></div>Chargement...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+<!-- ═══════════════════════ MODAL: Client Detail ═══════════════════════ -->
+<div class="modal-overlay hidden" id="modalClientDetail">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="modalClientTitle">Détail client</span>
+      <button class="modal-close" onclick="closeModal('modalClientDetail')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalClientBody">
+      <div class="loading"><div class="spinner"></div>Chargement...</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" style="margin-right:auto" id="btnGenXML">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+        Générer XML
+      </button>
+      <button class="btn btn-primary" onclick="openModalNewIntervention()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Assigner une intervention
+      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modalClientDetail')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MODAL: New Intervention ═══════════════════════ -->
+<div class="modal-overlay hidden" id="modalNewIntervention">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Assigner une intervention</span>
+      <button class="modal-close" onclick="closeModal('modalNewIntervention')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Client *</label>
+        <select class="form-control" id="ni_client" onchange="onClientSelected()">
+          <option value="">— Sélectionner un client —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Technicien *</label>
+        <select class="form-control" id="ni_tech" disabled>
+          <option value="">— Sélectionner d'abord un client —</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date de visite *</label>
+          <input type="date" class="form-control" id="ni_date"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Heure de visite *</label>
+          <input type="time" class="form-control" id="ni_heure" value="09:00"/>
+        </div>
+      </div>
+      <div id="ni_warning" class="db-error-banner hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span id="ni_warningText"></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalNewIntervention')">Annuler</button>
+      <button class="btn btn-primary" onclick="submitNewIntervention()" id="btnSubmitIntervention">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg>
+        Assigner
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://127.0.0.1:8765';
+let currentUser = null;
+let allClients = [];
+let allTechniciens = [];
+let allInterventions = [];
+
+// ─── Auth Guard ───────────────────────────────────────────────────────────────
+function init() {
+  const stored = localStorage.getItem('cashcash_user');
+  if (!stored) { window.location.href = 'index.html'; return; }
+  currentUser = JSON.parse(stored);
+  if (currentUser.role !== 'GESTIONNAIRE') { window.location.href = 'index.html'; return; }
+
+  // Profile
+  const initials = (currentUser.prenom[0] + currentUser.nom[0]).toUpperCase();
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userName').textContent = `${currentUser.prenom} ${currentUser.nom}`;
+  document.getElementById('userAgence').textContent = currentUser.agenceName;
+  document.getElementById('topbarAgence').textContent = currentUser.agenceName;
+  document.getElementById('sumAgence').textContent = currentUser.agenceName;
+  document.getElementById('sumGest').textContent = `${currentUser.prenom} ${currentUser.nom}`;
+
+  // Default month = current
+  const now = new Date();
+  document.getElementById('filterMonth').value = now.getMonth() + 1;
+  document.getElementById('filterYear').value = now.getFullYear();
+  document.getElementById('ni_date').valueAsDate = now;
+
+  // Load all data
+  loadStats();
+  loadClients();
+  loadTechniciens();
+  loadInterventions();
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+const pageNames = { dashboard: 'Tableau de bord', clients: 'Clients', techniciens: 'Techniciens', interventions: 'Interventions' };
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.querySelector(`[data-page="${page}"]`).classList.add('active');
+  document.getElementById('topbarTitle').textContent = pageNames[page];
+}
+
+// ─── Toasts ───────────────────────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const icons = {
+    success: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    error: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+    info: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  };
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `${icons[type]}<span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => el.remove(), 4200);
+}
+
+// ─── Modal helpers ────────────────────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function openModal(id)  { document.getElementById(id).classList.remove('hidden'); }
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.add('hidden'); });
+});
+
+// ─── API helper ───────────────────────────────────────────────────────────────
+async function api(path, options = {}) {
+  const res = await fetch(`${API}${path}`, {
+    headers: { 'Content-Type': 'application/json', 'x-user-matricule': currentUser.matricule, ...(options.headers||{}) },
+    ...options,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Erreur serveur');
+  return data;
+}
+
+// ─── Dashboard Stats ──────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const month = document.getElementById('filterMonth').value;
+    const year  = document.getElementById('filterYear').value;
+    const data  = await api(`/api/gestionnaire/stats?month=${month}&year=${year}&agenceId=${currentUser.agenceId}`);
+
+    document.getElementById('statInterventions').textContent = data.total_interventions ?? 0;
+    document.getElementById('statDistance').textContent = data.distance_parcourue_km ?? 0;
+
+    const min = data.temps_total_minutes ?? 0;
+    if (min >= 60) {
+      const h = Math.floor(min/60), m = min % 60;
+      document.getElementById('statTemps').textContent = `${h}h${m.toString().padStart(2,'0')}`;
+      document.getElementById('statTempsUnit').textContent = 'heures et minutes';
+    } else {
+      document.getElementById('statTemps').textContent = min;
+      document.getElementById('statTempsUnit').textContent = 'minutes';
+    }
+  } catch(e) {
+    toast('Erreur lors du chargement des statistiques: ' + e.message, 'error');
+  }
+}
+
+// ─── Clients ─────────────────────────────────────────────────────────────────
+async function loadClients() {
+  try {
+    allClients = await api(`/api/gestionnaire/clients?agenceId=${currentUser.agenceId}`);
+    document.getElementById('badgeClients').textContent = allClients.length;
+    document.getElementById('sumClients').textContent = allClients.length;
+    renderClients(allClients);
+    fillClientSelect();
+  } catch(e) {
+    toast('Erreur clients: ' + e.message, 'error');
+  }
+}
+
+function renderClients(clients) {
+  const tbody = document.getElementById('clientsTable');
+  if (!clients.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><h3>Aucun client</h3></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = clients.map(c => {
+    const echeance = c.prochaine_echeance ? new Date(c.prochaine_echeance) : null;
+    const expired  = echeance && echeance < new Date();
+    const badge    = expired
+      ? `<span class="badge badge-red">Expiré</span>`
+      : (echeance ? `<span class="badge badge-green">Actif</span>` : `<span class="badge badge-muted">Aucun</span>`);
+    return `<tr onclick="openClientDetail(${c.NumeroClient})">
+      <td class="primary">${c.RaisonSociale}</td>
+      <td>${c.Siren}</td>
+      <td>${c.TelephoneClient}</td>
+      <td>${c.DistanceKM} km</td>
+      <td>${badge} <small style="color:var(--text-muted)">${c.nb_contrats}</small></td>
+      <td><span class="badge badge-blue">${c.nb_materiels}</span></td>
+      <td>
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="event.stopPropagation(); openClientDetail(${c.NumeroClient})" title="Détails">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterClients(q) {
+  const filtered = allClients.filter(c =>
+    c.RaisonSociale.toLowerCase().includes(q.toLowerCase()) ||
+    c.Siren.includes(q)
+  );
+  renderClients(filtered);
+}
+
+async function openClientDetail(id) {
+  openModal('modalClientDetail');
+  document.getElementById('modalClientBody').innerHTML = '<div class="loading"><div class="spinner"></div>Chargement...</div>';
+  try {
+    const { client, contrats, materiels } = await api(`/api/gestionnaire/client/${id}`);
+    document.getElementById('modalClientTitle').textContent = client.RaisonSociale;
+    document.getElementById('modalClientBody').innerHTML = `
+      <div class="grid-2">
+        <div>
+          <h3 style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Informations</h3>
+          <div class="detail-list">
+            <div class="detail-row"><span class="detail-label">SIREN</span><span class="detail-value">${client.Siren}</span></div>
+            <div class="detail-row"><span class="detail-label">Code APE</span><span class="detail-value">${client.CodeApe}</span></div>
+            <div class="detail-row"><span class="detail-label">Adresse</span><span class="detail-value" style="text-align:right;font-size:.8rem">${client.Adresse}</span></div>
+            <div class="detail-row"><span class="detail-label">Téléphone</span><span class="detail-value">${client.TelephoneClient}</span></div>
+            <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${client.Email}</span></div>
+            <div class="detail-row"><span class="detail-label">Distance</span><span class="detail-value">${client.DistanceKM} km</span></div>
+            <div class="detail-row"><span class="detail-label">Déplacement</span><span class="detail-value">${client.DureeDeplacement} min</span></div>
+          </div>
+        </div>
+        <div>
+          <h3 style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Contrats (${contrats.length})</h3>
+          ${contrats.length === 0 ? '<p style="color:var(--text-muted);font-size:.85rem">Aucun contrat</p>' :
+            contrats.map(c => {
+              const exp = new Date(c.DateEcheance) < new Date();
+              return `<div style="background:var(--bg-app);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-weight:700;color:var(--text-primary)">${c.RefTypeContrat}</span>
+                  <span class="badge ${exp ? 'badge-red' : 'badge-green'}">${exp ? 'Expiré' : 'Actif'}</span>
+                </div>
+                <div style="font-size:.75rem;color:var(--text-muted)">
+                  Délai: ${c.DelaiIntervention}h · Taux: ${c.TauxApplicable}% · Matériels: ${c.nb_materiels}<br/>
+                  Signé: ${fmt(c.DateSignature)} · Échéance: ${fmt(c.DateEcheance)}
+                </div>
+              </div>`;
+            }).join('')
+          }
+          <h3 style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 12px">Matériels (${materiels.length})</h3>
+          ${materiels.map(m => `
+            <div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+              <span class="badge badge-blue" style="flex-shrink:0">📟</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:.82rem;font-weight:600;color:var(--text-primary)">${m.LibelleTypeMateriel}</div>
+                <div style="font-size:.72rem;color:var(--text-muted)">${m.NumeroSerie} · ${m.Emplacement}</div>
+              </div>
+              ${m.RefTypeContrat ? `<span class="badge badge-green">${m.RefTypeContrat}</span>` : '<span class="badge badge-muted">Hors contrat</span>'}
+            </div>
+          `).join('') || '<p style="color:var(--text-muted);font-size:.85rem">Aucun matériel</p>'}
+        </div>
+      </div>
+    `;
+    // Pre-select client in new-intervention modal
+    document.getElementById('ni_client').value = id;
+    
+    // Setup XML button
+    const btnXML = document.getElementById('btnGenXML');
+    btnXML.onclick = () => generateClientXML(id);
+  } catch(e) {
+    toast('Erreur: ' + e.message, 'error');
+    closeModal('modalClientDetail');
+  }
+}
+
+// ─── XML & PDF Generation (Jalon 3) ──────────────────────────────────────────
+async function generateClientXML(clientId) {
+  try {
+    toast('Génération de l\'XML en cours...', 'info');
+    const { xml, fileName } = await api(`/api/gestionnaire/client/${clientId}/xml`);
+    
+    if (window.electronAPI) {
+      const result = await window.electronAPI.saveFile(fileName, xml);
+      if (result.success) toast(`XML enregistré avec succès : ${result.path}`, 'success');
+    } else {
+      // Fallback browser download
+      const blob = new Blob([xml], { type: 'text/xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName; a.click();
+    }
+  } catch(e) {
+    toast('Erreur génération XML: ' + e.message, 'error');
+  }
+}
+
+async function generateRelancesPDF() {
+  try {
+    toast('Génération des relances PDF...', 'info');
+    const data = await api(`/api/gestionnaire/relances-pdf?agenceId=${currentUser.agenceId}`);
+    
+    if (data.message) {
+      toast(data.message, 'info');
+      return;
+    }
+
+    if (window.electronAPI) {
+      // Decode base64 to buffer-like content for Electron (it accepts string as is for text, but here it's base64 PDF)
+      // Electron fs.writeFileSync can take a buffer
+      const result = await window.electronAPI.saveFile(data.fileName, data.pdf);
+      if (result.success) toast(`PDF enregistré avec succès : ${result.path}`, 'success');
+    } else {
+      const linkSource = `data:application/pdf;base64,${data.pdf}`;
+      const downloadLink = document.createElement("a");
+      downloadLink.href = linkSource;
+      downloadLink.download = data.fileName;
+      downloadLink.click();
+    }
+  } catch(e) {
+    toast('Erreur génération PDF: ' + e.message, 'error');
+  }
+}
+
+// ─── Techniciens ──────────────────────────────────────────────────────────────
+async function loadTechniciens() {
+  try {
+    allTechniciens = await api(`/api/gestionnaire/techniciens?agenceId=${currentUser.agenceId}`);
+    document.getElementById('badgeTechs').textContent = allTechniciens.length;
+    document.getElementById('sumTechs').textContent = allTechniciens.length;
+    const tbody = document.getElementById('techniciensTable');
+    if (!allTechniciens.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><h3>Aucun technicien</h3></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = allTechniciens.map(t => `<tr>
+      <td><span class="badge badge-muted">${t.Matricule}</span></td>
+      <td class="primary">${t.PrenomEmploye} ${t.NomEmploye}</td>
+      <td><span class="badge badge-blue">${t.Qualification}</span></td>
+      <td>${t.DateObtention ? fmt(t.DateObtention) : '—'}</td>
+      <td>${t.TelephoneMobile}</td>
+      <td><span style="font-weight:700;color:var(--accent)">${t.nb_interventions}</span></td>
+      <td>${fmt(t.DateEmbauche)}</td>
+    </tr>`).join('');
+  } catch(e) {
+    toast('Erreur techniciens: ' + e.message, 'error');
+  }
+}
+
+// ─── Interventions ────────────────────────────────────────────────────────────
+async function loadInterventions() {
+  try {
+    allInterventions = await api(`/api/gestionnaire/interventions?agenceId=${currentUser.agenceId}`);
+    renderInterventions(allInterventions.slice(0, 5), 'recentInterventions', true);
+    renderInterventions(allInterventions, 'interventionsTable', false);
+  } catch(e) {
+    toast('Erreur interventions: ' + e.message, 'error');
+  }
+}
+
+function renderInterventions(list, containerId, compact) {
+  const el = document.getElementById(containerId);
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:40px;height:40px"><polyline points="20 6 9 17 4 12"/></svg><h3>Aucune intervention</h3></div>`;
+    return;
+  }
+  if (compact) {
+    el.innerHTML = `<table><thead><tr><th>Date</th><th>Client</th><th>Technicien</th><th>Statut</th></tr></thead><tbody>
+      ${list.map(i => `<tr>
+        <td>${fmt(i.DateVisite)}</td>
+        <td class="primary">${i.clientNom}</td>
+        <td>${i.technicienNom}</td>
+        <td>${i.nb_controles > 0 ? '<span class="badge badge-green">Réalisée</span>' : '<span class="badge badge-orange">En attente</span>'}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  } else {
+    el.innerHTML = list.map(i => `<tr>
+      <td><span style="font-weight:700;color:var(--text-muted)">#${i.NumeroIntervent}</span></td>
+      <td class="primary">${fmt(i.DateVisite)} <span style="color:var(--text-muted)">${i.HeureVisite?.slice(0,5)}</span></td>
+      <td class="primary">${i.clientNom}</td>
+      <td>${i.technicienNom}</td>
+      <td style="font-size:.78rem;color:var(--text-muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.clientAdresse || '—'}</td>
+      <td><span class="badge badge-blue">${i.nb_controles}</span></td>
+      <td>${i.nb_controles > 0 ? '<span class="badge badge-green">✓ Réalisée</span>' : '<span class="badge badge-orange">⏳ En attente</span>'}</td>
+    </tr>`).join('');
+  }
+}
+
+// ─── New Intervention Modal ───────────────────────────────────────────────────
+function fillClientSelect() {
+  const sel = document.getElementById('ni_client');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Sélectionner un client —</option>' +
+    allClients.map(c => `<option value="${c.NumeroClient}">${c.RaisonSociale}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+async function onClientSelected() {
+  const clientId = document.getElementById('ni_client').value;
+  const techSel  = document.getElementById('ni_tech');
+  document.getElementById('ni_warning').classList.add('hidden');
+
+  if (!clientId) {
+    techSel.innerHTML = '<option value="">— Sélectionner d\'abord un client —</option>';
+    techSel.disabled = true;
+    return;
+  }
+
+  techSel.innerHTML = '<option value="">Chargement...</option>';
+  techSel.disabled = true;
+
+  try {
+    const techs = await api(`/api/gestionnaire/techniciens-for-client?clientId=${clientId}`);
+    if (!techs.length) {
+      techSel.innerHTML = '<option value="">Aucun technicien disponible dans cette agence</option>';
+      return;
+    }
+    techSel.innerHTML = '<option value="">— Sélectionner un technicien —</option>' +
+      techs.map(t => `<option value="${t.Matricule}">${t.PrenomEmploye} ${t.NomEmploye} (${t.Qualification})</option>`).join('');
+    techSel.disabled = false;
+  } catch(e) {
+    toast('Erreur: ' + e.message, 'error');
+  }
+}
+
+function openModalNewIntervention() {
+  closeModal('modalClientDetail');
+  fillClientSelect();
+  document.getElementById('ni_warning').classList.add('hidden');
+  openModal('modalNewIntervention');
+}
+
+async function submitNewIntervention() {
+  const NumeroClient = document.getElementById('ni_client').value;
+  const MatriculeTechnicien = document.getElementById('ni_tech').value;
+  const DateVisite  = document.getElementById('ni_date').value;
+  const HeureVisite = document.getElementById('ni_heure').value;
+  const warn = document.getElementById('ni_warning');
+
+  if (!NumeroClient || !MatriculeTechnicien || !DateVisite || !HeureVisite) {
+    warn.classList.remove('hidden');
+    document.getElementById('ni_warningText').textContent = 'Veuillez remplir tous les champs obligatoires.';
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmitIntervention');
+  btn.disabled = true;
+  btn.textContent = 'Assignation...';
+
+  try {
+    await api('/api/gestionnaire/interventions', {
+      method: 'POST',
+      body: JSON.stringify({ NumeroClient: parseInt(NumeroClient), MatriculeTechnicien, DateVisite, HeureVisite }),
+    });
+    closeModal('modalNewIntervention');
+    toast('Intervention assignée avec succès !', 'success');
+    loadInterventions();
+    loadStats();
+  } catch(e) {
+    warn.classList.remove('hidden');
+    document.getElementById('ni_warningText').textContent = e.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg> Assigner`;
+  }
+}
+
+// ─── Logout ───────────────────────────────────────────────────────────────────
+function logout() {
+  localStorage.removeItem('cashcash_user');
+  window.location.href = 'index.html';
+}
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+function fmt(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+// ─── Start ────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

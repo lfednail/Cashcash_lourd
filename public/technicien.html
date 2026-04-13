@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CashCash — Espace Technicien</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="app-layout">
+
+  <!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="images/cashcash-logov3.png" alt="CashCash Logo" style="max-height: 36px; object-fit: contain; border-radius: 4px;" />
+      <div class="brand-text">
+        <span class="brand-name">CashCash</span>
+        <span class="brand-sub">Technicien</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Navigation</span>
+
+      <div class="nav-item active" data-page="interventions" onclick="switchPage('interventions')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        Mes Interventions
+        <span class="nav-badge" id="badgeInterventions">0</span>
+      </div>
+
+      <div class="nav-item" data-page="recherche" onclick="switchPage('recherche')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Rechercher un client
+      </div>
+
+      <div class="nav-item" data-page="valider" onclick="switchPage('valider')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        Valider une intervention
+      </div>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar" id="userAvatar">T</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Chargement...</div>
+          <div class="user-role" id="userQualif">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Déconnexion">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════ MAIN ═══════════════════════ -->
+  <main class="main-content">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Mes Interventions</div>
+        <div class="topbar-subtitle" id="topbarSub">Espace Technicien</div>
+      </div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-badge">
+        <div class="topbar-badge-dot"></div>
+        <span id="topbarAgence">—</span>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- ════════ PAGE: MES INTERVENTIONS ════════ -->
+      <div class="page active" id="page-interventions">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1 class="page-title">Mes Interventions</h1>
+            <p class="page-desc">Toutes vos interventions assignées</p>
+          </div>
+          <div class="filter-bar">
+            <select class="form-control" id="filterStatut" onchange="filterInterventions()" style="width:160px">
+              <option value="all">Tous les statuts</option>
+              <option value="pending">En attente</option>
+              <option value="done">Réalisées</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="loadInterventions()">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px">
+                <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+              Actualiser
+            </button>
+          </div>
+        </div>
+
+        <!-- Mini stats -->
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:24px;">
+          <div class="stat-card" style="--stat-color:#22c55e;--stat-bg:rgba(34,197,94,.12);">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="stat-label">Total</div>
+            <div class="stat-value" id="statTotal">0</div>
+            <div class="stat-unit">interventions</div>
+          </div>
+          <div class="stat-card" style="--stat-color:#fb923c;--stat-bg:rgba(251,146,60,.12);">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 12"/></svg>
+            </div>
+            <div class="stat-label">En attente</div>
+            <div class="stat-value" id="statPending">0</div>
+            <div class="stat-unit">à traiter</div>
+          </div>
+          <div class="stat-card" style="--stat-color:#3b82f6;--stat-bg:rgba(59,130,246,.12);">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="stat-label">Réalisées</div>
+            <div class="stat-value" id="statDone">0</div>
+            <div class="stat-unit">terminées</div>
+          </div>
+        </div>
+
+        <!-- Interventions list as cards -->
+        <div id="interventionsList">
+          <div class="loading"><div class="spinner"></div>Chargement de vos interventions...</div>
+        </div>
+      </div>
+
+      <!-- ════════ PAGE: RECHERCHE CLIENT ════════ -->
+      <div class="page" id="page-recherche">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1 class="page-title">Rechercher un client</h1>
+            <p class="page-desc">Trouvez un client de votre agence par nom, SIREN ou email</p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-body">
+            <div class="search-box" style="max-width:500px">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input type="text" class="form-control" id="searchInput" placeholder="Nom de l'entreprise, SIREN, email..." oninput="searchDebounce(this.value)" autocomplete="off"/>
+            </div>
+            <p style="color:var(--text-muted);font-size:.78rem;margin-top:10px">Saisissez au moins 2 caractères pour lancer la recherche</p>
+          </div>
+        </div>
+
+        <div id="searchResults">
+          <div class="empty-state">
+            <img src="images/cashcash-logov3.png" alt="CashCash Logo" style="max-height: 36px; object-fit: contain; border-radius: 4px;" />      <h3>Recherche de clients</h3>
+            <p>Entrez le nom, SIREN ou email d'un client pour le trouver</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════ PAGE: VALIDER INTERVENTION ════════ -->
+      <div class="page" id="page-valider">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1 class="page-title">Valider une intervention</h1>
+            <p class="page-desc">Enregistrez les contrôles effectués sur les matériels</p>
+          </div>
+        </div>
+
+        <!-- Step 1: Select intervention -->
+        <div class="card" style="margin-bottom:20px" id="stepSelectIntervention">
+          <div class="card-header">
+            <span class="card-title">Étape 1 — Sélectionner une intervention</span>
+          </div>
+          <div class="card-body">
+            <div class="form-group" style="max-width:400px">
+              <label class="form-label">Intervention à valider</label>
+              <select class="form-control" id="selIntervention" onchange="onInterventionSelected()">
+                <option value="">— Choisir une intervention —</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Validate materials -->
+        <div id="validationArea" style="display:none">
+          <!-- Intervention info banner -->
+          <div id="interventionBanner" style="margin-bottom:16px"></div>
+
+          <!-- Materials to control -->
+          <div id="materielsToControl">
+            <div class="loading"><div class="spinner"></div>Chargement des matériels...</div>
+          </div>
+        </div>
+
+        <div id="noInterventionMsg" style="display:none">
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <h3>Aucune intervention sélectionnée</h3>
+            <p>Choisissez une intervention dans la liste ci-dessus pour commencer la validation</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+<!-- ═══════════════════════ MODAL: Client Search Detail ═══════════════════════ -->
+<div class="modal-overlay hidden" id="modalClientSearch">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="modalSearchClientTitle">Informations client</span>
+      <button class="modal-close" onclick="closeModal('modalClientSearch')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalSearchClientBody">
+      <div class="loading"><div class="spinner"></div>Chargement...</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalClientSearch')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MODAL: Contrôle Matériel ═══════════════════════ -->
+<div class="modal-overlay hidden" id="modalControle">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Contrôle matériel</span>
+      <button class="modal-close" onclick="closeModal('modalControle')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ctrl_intervent"/>
+      <input type="hidden" id="ctrl_serie"/>
+
+      <div style="background:var(--bg-app);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:4px">
+        <div style="font-weight:700;color:var(--text-primary)" id="ctrl_materielName">—</div>
+        <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px" id="ctrl_materielInfo">—</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Temps passé (minutes) *</label>
+        <input type="number" class="form-control" id="ctrl_temps" placeholder="Ex: 45" min="0" max="999"/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Commentaire / Observations</label>
+        <textarea class="form-control" id="ctrl_commentaire" rows="4" placeholder="Décrivez les actions effectuées, les anomalies constatées..."></textarea>
+      </div>
+
+      <div id="ctrl_warning" class="db-error-banner hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span id="ctrl_warningText"></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalControle')">Annuler</button>
+      <button class="btn btn-primary" onclick="submitControle()" id="btnSubmitControle">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg>
+        Valider le contrôle
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://127.0.0.1:8765';
+let currentUser = null;
+let allInterventions = [];
+let currentIntervention = null;
+let searchTimer = null;
+
+// ─── Auth Guard ───────────────────────────────────────────────────────────────
+function init() {
+  const stored = localStorage.getItem('cashcash_user');
+  if (!stored) { window.location.href = 'index.html'; return; }
+  currentUser = JSON.parse(stored);
+  if (currentUser.role !== 'TECHNICIEN') { window.location.href = 'index.html'; return; }
+
+  // Profile
+  const initials = (currentUser.prenom[0] + currentUser.nom[0]).toUpperCase();
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userName').textContent = `${currentUser.prenom} ${currentUser.nom}`;
+  document.getElementById('userQualif').textContent = currentUser.qualification || 'Technicien';
+  document.getElementById('topbarAgence').textContent = currentUser.agenceName;
+
+  loadInterventions();
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+const pageNames = { interventions: 'Mes Interventions', recherche: 'Rechercher un client', valider: 'Valider une intervention' };
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.querySelector(`[data-page="${page}"]`).classList.add('active');
+  document.getElementById('topbarTitle').textContent = pageNames[page];
+}
+
+// ─── Toasts ───────────────────────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const icons = {
+    success: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    error: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+    info: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  };
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `${icons[type]}<span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => el.remove(), 4200);
+}
+
+// ─── Modal helpers ────────────────────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function openModal(id)  { document.getElementById(id).classList.remove('hidden'); }
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.add('hidden'); });
+});
+
+// ─── API helper ───────────────────────────────────────────────────────────────
+async function api(path, options = {}) {
+  const res = await fetch(`${API}${path}`, {
+    headers: { 'Content-Type': 'application/json', 'x-user-matricule': currentUser.matricule },
+    ...options,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Erreur serveur');
+  return data;
+}
+
+// ─── Interventions ────────────────────────────────────────────────────────────
+async function loadInterventions() {
+  document.getElementById('interventionsList').innerHTML = '<div class="loading"><div class="spinner"></div>Chargement...</div>';
+  try {
+    allInterventions = await api(`/api/technicien/interventions?matricule=${currentUser.matricule}`);
+
+    // Update badge & stats
+    const done = allInterventions.filter(i => i.nb_controles > 0).length;
+    const pending = allInterventions.filter(i => i.nb_controles == 0).length;
+    document.getElementById('badgeInterventions').textContent = allInterventions.length;
+    document.getElementById('statTotal').textContent = allInterventions.length;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('statDone').textContent = done;
+
+    // Fill intervention select on valider page
+    fillInterventionSelect();
+    filterInterventions();
+  } catch(e) {
+    toast('Erreur: ' + e.message, 'error');
+    document.getElementById('interventionsList').innerHTML = `<div class="empty-state"><h3>Erreur de chargement</h3><p>${e.message}</p></div>`;
+  }
+}
+
+function filterInterventions() {
+  const statut = document.getElementById('filterStatut').value;
+  let filtered = allInterventions;
+  if (statut === 'pending') filtered = allInterventions.filter(i => i.nb_controles == 0);
+  if (statut === 'done')    filtered = allInterventions.filter(i => i.nb_controles > 0);
+  renderInterventionCards(filtered);
+}
+
+function renderInterventionCards(list) {
+  const container = document.getElementById('interventionsList');
+  if (!list.length) {
+    container.innerHTML = `<div class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px">
+        <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+      </svg>
+      <h3>Aucune intervention</h3>
+      <p>Vous n'avez aucune intervention assignée pour le moment</p>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
+    ${list.map(i => {
+      const done = i.nb_controles > 0;
+      const dateStr = fmt(i.DateVisite);
+      const today = new Date().toDateString();
+      const visitDate = new Date(i.DateVisite).toDateString();
+      const isToday = today === visitDate;
+      const isPast  = new Date(i.DateVisite) < new Date() && !isToday;
+
+      return `<div class="card" style="cursor:pointer;transition:all .2s;border-color:${done ? 'rgba(34,197,94,.3)' : (isToday ? 'rgba(251,146,60,.3)' : 'var(--border)')}"
+              onclick="goToValidate(${i.NumeroIntervent})"
+              onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='var(--shadow-card)'"
+              onmouseleave="this.style.transform='';this.style.boxShadow=''">
+        <div class="card-header" style="padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:10px;flex:1">
+            <div style="width:36px;height:36px;border-radius:50%;background:${done ? 'rgba(34,197,94,.15)' : (isToday ? 'rgba(251,146,60,.15)' : 'rgba(100,116,139,.1)')};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              ${done
+                ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><polyline points="12 7 12 12 15 12"/></svg>'
+              }
+            </div>
+            <div>
+              <div style="font-weight:700;color:var(--text-primary);font-size:.9rem">${i.RaisonSociale}</div>
+              <div style="font-size:.72rem;color:var(--text-muted)">#${i.NumeroIntervent}</div>
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            ${done
+              ? '<span class="badge badge-green">✓ Réalisée</span>'
+              : (isToday ? '<span class="badge badge-orange">⚡ Aujourd\'hui</span>' : (isPast ? '<span class="badge badge-red">⚠ En retard</span>' : '<span class="badge badge-muted">Planifiée</span>'))
+            }
+          </div>
+        </div>
+        <div style="padding:0 18px 16px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text-secondary)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            ${dateStr} à ${i.HeureVisite?.slice(0,5) || '—'}
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--text-secondary)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;margin-top:1px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span style="line-height:1.4">${i.Adresse}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text-secondary)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.64 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            ${i.TelephoneClient}
+          </div>
+          <div style="margin-top:6px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:.75rem;color:var(--text-muted)">${i.DistanceKM} km · ${i.DureeDeplacement} min trajet</span>
+            <span style="font-size:.78rem;font-weight:600;color:${done ? 'var(--accent)' : 'var(--text-muted)'}">
+              ${i.nb_controles} contrôle${i.nb_controles > 1 ? 's' : ''}
+            </span>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ─── Search client ────────────────────────────────────────────────────────────
+function searchDebounce(val) {
+  clearTimeout(searchTimer);
+  if (val.length < 2) {
+    document.getElementById('searchResults').innerHTML = `<div class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <h3>Recherche de clients</h3><p>Entrez au moins 2 caractères</p>
+    </div>`;
+    return;
+  }
+  document.getElementById('searchResults').innerHTML = '<div class="loading"><div class="spinner"></div>Recherche en cours...</div>';
+  searchTimer = setTimeout(() => doSearch(val), 400);
+}
+
+async function doSearch(q) {
+  try {
+    const clients = await api(`/api/technicien/search?q=${encodeURIComponent(q)}&agenceId=${currentUser.agenceId}`);
+    const container = document.getElementById('searchResults');
+    if (!clients.length) {
+      container.innerHTML = `<div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <h3>Aucun résultat</h3><p>Aucun client trouvé pour "${q}"</p>
+      </div>`;
+      return;
+    }
+    container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
+      ${clients.map(c => `
+        <div class="card" style="cursor:pointer" onclick="openClientModal(${c.NumeroClient})"
+             onmouseenter="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(59,130,246,.4)'"
+             onmouseleave="this.style.transform='';this.style.borderColor='var(--border)'">
+          <div class="card-body" style="padding:18px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px">
+              <div>
+                <div style="font-weight:700;color:var(--text-primary);font-size:.95rem">${c.RaisonSociale}</div>
+                <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px">SIREN: ${c.Siren}</div>
+              </div>
+              <span class="badge badge-blue">${c.nb_contrats} contrat${c.nb_contrats > 1 ? 's' : ''}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="font-size:.8rem;color:var(--text-secondary);display:flex;gap:8px">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0;margin-top:1px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                ${c.Adresse}
+              </div>
+              <div style="font-size:.8rem;color:var(--text-secondary);display:flex;gap:8px">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.64 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                ${c.TelephoneClient}
+              </div>
+              <div style="font-size:.8rem;color:var(--text-secondary);display:flex;gap:8px">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                ${c.Email}
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:10px">
+              <span style="font-size:.75rem;color:var(--text-muted)">${c.DistanceKM} km · ${c.DureeDeplacement} min</span>
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openClientModal(${c.NumeroClient})">Voir détails</button>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+  } catch(e) {
+    toast('Erreur recherche: ' + e.message, 'error');
+  }
+}
+
+async function openClientModal(clientId) {
+  openModal('modalClientSearch');
+  document.getElementById('modalSearchClientBody').innerHTML = '<div class="loading"><div class="spinner"></div>Chargement...</div>';
+  try {
+    // Re-use gestionnaire endpoint
+    const res = await fetch(`${API}/api/gestionnaire/client/${clientId}`, {
+      headers: { 'x-user-matricule': currentUser.matricule }
+    });
+    const { client, contrats, materiels } = await res.json();
+    document.getElementById('modalSearchClientTitle').textContent = client.RaisonSociale;
+    document.getElementById('modalSearchClientBody').innerHTML = `
+      <div class="detail-list">
+        <div class="detail-row"><span class="detail-label">SIREN</span><span class="detail-value">${client.Siren}</span></div>
+        <div class="detail-row"><span class="detail-label">Code APE</span><span class="detail-value">${client.CodeApe}</span></div>
+        <div class="detail-row"><span class="detail-label">Adresse</span><span class="detail-value" style="text-align:right;font-size:.82rem">${client.Adresse}</span></div>
+        <div class="detail-row"><span class="detail-label">Téléphone</span><span class="detail-value">${client.TelephoneClient}</span></div>
+        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${client.Email}</span></div>
+        <div class="detail-row"><span class="detail-label">Distance</span><span class="detail-value">${client.DistanceKM} km (${client.DureeDeplacement} min)</span></div>
+      </div>
+      <h3 style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 10px">Contrats de maintenance (${contrats.length})</h3>
+      ${contrats.length === 0 ? '<p style="color:var(--text-muted);font-size:.85rem">Aucun contrat actif</p>' :
+        contrats.map(c => {
+          const exp = new Date(c.DateEcheance) < new Date();
+          return `<div style="background:var(--bg-app);border:1px solid var(--border);border-left:3px solid ${exp?'var(--red)':'var(--accent)'};border-radius:var(--radius);padding:12px;margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-weight:700">${c.RefTypeContrat}</span>
+              <span class="badge ${exp?'badge-red':'badge-green'}">${exp?'Expiré':'Actif'}</span>
+            </div>
+            <div style="font-size:.75rem;color:var(--text-muted)">
+              Délai intervention: <strong>${c.DelaiIntervention}h</strong> · Taux: <strong>${c.TauxApplicable}%</strong><br/>
+              Signé le ${fmt(c.DateSignature)} · Expire le ${fmt(c.DateEcheance)}
+            </div>
+          </div>`;
+        }).join('')
+      }
+      <h3 style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 10px">Matériels (${materiels.length})</h3>
+      ${materiels.map(m => `
+        <div style="display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:1.2rem">📟</span>
+          <div style="flex:1">
+            <div style="font-weight:600;color:var(--text-primary);font-size:.85rem">${m.LibelleTypeMateriel}</div>
+            <div style="font-size:.72rem;color:var(--text-muted)">${m.NumeroSerie} · ${m.Emplacement}</div>
+          </div>
+          ${m.RefTypeContrat ? `<span class="badge badge-green">${m.RefTypeContrat}</span>` : '<span class="badge badge-red">Hors contrat</span>'}
+        </div>
+      `).join('') || '<p style="color:var(--text-muted);font-size:.85rem">Aucun matériel</p>'}
+    `;
+  } catch(e) {
+    toast('Erreur: ' + e.message, 'error');
+    closeModal('modalClientSearch');
+  }
+}
+
+// ─── Validate Intervention ────────────────────────────────────────────────────
+function fillInterventionSelect() {
+  const sel = document.getElementById('selIntervention');
+  sel.innerHTML = '<option value="">— Choisir une intervention —</option>' +
+    allInterventions.map(i => {
+      const done = i.nb_controles > 0;
+      return `<option value="${i.NumeroIntervent}">[${fmt(i.DateVisite)}] ${i.RaisonSociale} — ${done ? '✓ Réalisée' : '⏳ En attente'}`;
+    }).join('');
+}
+
+function goToValidate(id) {
+  switchPage('valider');
+  document.getElementById('selIntervention').value = id;
+  onInterventionSelected();
+}
+
+async function onInterventionSelected() {
+  const id = document.getElementById('selIntervention').value;
+  document.getElementById('validationArea').style.display = 'none';
+  document.getElementById('noInterventionMsg').style.display = 'none';
+
+  if (!id) {
+    document.getElementById('noInterventionMsg').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('validationArea').style.display = 'block';
+  document.getElementById('materielsToControl').innerHTML = '<div class="loading"><div class="spinner"></div>Chargement des matériels...</div>';
+
+  try {
+    const { intervention, materiels } = await api(`/api/technicien/intervention/${id}`);
+    currentIntervention = intervention;
+
+    // Banner
+    document.getElementById('interventionBanner').innerHTML = `
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;display:flex;flex-wrap:wrap;gap:20px;align-items:center">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Client</div>
+          <div style="font-size:1.1rem;font-weight:800;color:var(--text-primary)">${intervention.RaisonSociale}</div>
+          <div style="font-size:.8rem;color:var(--text-secondary);margin-top:4px">${intervention.Adresse}</div>
+        </div>
+        <div style="display:flex;gap:24px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Date</div>
+            <div style="font-weight:600;color:var(--text-primary)">${fmt(intervention.DateVisite)}</div>
+          </div>
+          <div>
+            <div style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Heure</div>
+            <div style="font-weight:600;color:var(--text-primary)">${intervention.HeureVisite?.slice(0,5) || '—'}</div>
+          </div>
+          <div>
+            <div style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Téléphone</div>
+            <div style="font-weight:600;color:var(--text-primary)">${intervention.TelephoneClient}</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Render materials
+    if (!materiels.length) {
+      document.getElementById('materielsToControl').innerHTML = `<div class="empty-state"><h3>Aucun matériel trouvé</h3><p>Ce client n'a pas de matériel enregistré</p></div>`;
+      return;
+    }
+
+    document.getElementById('materielsToControl').innerHTML = `
+      <h3 style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px">
+        Matériels à contrôler (${materiels.length})
+      </h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px">
+        ${materiels.map(m => {
+          const validated = m.deja_controle == 1;
+          const hasContract = !!m.RefTypeContrat;
+          const expired = hasContract && new Date(m.DateEcheance) < new Date();
+          return `
+            <div class="material-card ${validated ? 'validated' : ''}" id="mc_${m.NumeroSerie}">
+              <div class="material-card-header">
+                <div>
+                  <div class="material-name">${m.LibelleTypeMateriel}</div>
+                  <div class="material-sn">${m.NumeroSerie}</div>
+                </div>
+                ${validated
+                  ? '<span class="badge badge-green">✓ Contrôlé</span>'
+                  : '<span class="badge badge-muted">À contrôler</span>'
+                }
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+                <span class="badge badge-muted" title="Emplacement">📍 ${m.Emplacement}</span>
+                ${hasContract && !expired
+                  ? `<span class="badge badge-green">${m.RefTypeContrat}</span>`
+                  : (hasContract && expired
+                    ? `<span class="badge badge-red">⚠ ${m.RefTypeContrat} expiré</span>`
+                    : `<span class="badge badge-red">⚠ Hors contrat</span>`)
+                }
+              </div>
+              ${validated ? `
+                <div style="background:var(--bg-app);border:1px solid rgba(34,197,94,.15);border-radius:var(--radius);padding:10px;margin-bottom:12px;font-size:.8rem;color:var(--text-secondary)">
+                  <div style="margin-bottom:4px">⏱ <strong>${m.TempsPasse} minutes</strong></div>
+                  ${m.Commentaire ? `<div>💬 ${m.Commentaire}</div>` : ''}
+                </div>
+              ` : ''}
+              ${hasContract && !expired
+                ? `<button class="btn ${validated ? 'btn-secondary' : 'btn-primary'}" style="width:100%"
+                     onclick="openControleModal(${intervention.NumeroIntervent},'${m.NumeroSerie}','${m.LibelleTypeMateriel}','${m.Emplacement}','${m.RefTypeContrat||''}',${m.TempsPasse||0},'${(m.Commentaire||'').replace(/'/g,"\\'")}')">
+                    ${validated
+                      ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Modifier le contrôle`
+                      : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg> Enregistrer le contrôle`
+                    }
+                  </button>`
+                : `<div style="text-align:center;padding:10px;font-size:.78rem;color:var(--red);background:var(--red-light);border:1px solid rgba(248,113,113,.2);border-radius:var(--radius)">
+                    ⚠ Contrôle impossible — matériel ${expired ? 'sous contrat expiré' : 'hors contrat'}
+                  </div>`
+              }
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  } catch(e) {
+    toast('Erreur: ' + e.message, 'error');
+    document.getElementById('materielsToControl').innerHTML = `<div class="empty-state"><h3>Erreur</h3><p>${e.message}</p></div>`;
+  }
+}
+
+function openControleModal(interventId, serie, nom, emplacement, contrat, temps, commentaire) {
+  document.getElementById('ctrl_intervent').value = interventId;
+  document.getElementById('ctrl_serie').value = serie;
+  document.getElementById('ctrl_materielName').textContent = nom;
+  document.getElementById('ctrl_materielInfo').textContent = `${serie} · ${emplacement}${contrat ? ' · Contrat: ' + contrat : ''}`;
+  document.getElementById('ctrl_temps').value = temps || '';
+  document.getElementById('ctrl_commentaire').value = commentaire || '';
+  document.getElementById('ctrl_warning').classList.add('hidden');
+  openModal('modalControle');
+}
+
+async function submitControle() {
+  const NumeroIntervent = parseInt(document.getElementById('ctrl_intervent').value);
+  const NumeroSerieMateriel = document.getElementById('ctrl_serie').value;
+  const TempsPasse = parseInt(document.getElementById('ctrl_temps').value) || 0;
+  const Commentaire = document.getElementById('ctrl_commentaire').value.trim();
+  const warn = document.getElementById('ctrl_warning');
+
+  if (!TempsPasse && TempsPasse !== 0) {
+    warn.classList.remove('hidden');
+    document.getElementById('ctrl_warningText').textContent = 'Veuillez saisir le temps passé.';
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmitControle');
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement...';
+  warn.classList.add('hidden');
+
+  try {
+    await api('/api/technicien/controler', {
+      method: 'POST',
+      body: JSON.stringify({ NumeroIntervent, NumeroSerieMateriel, TempsPasse, Commentaire }),
+    });
+    closeModal('modalControle');
+    toast('Contrôle enregistré avec succès !', 'success');
+    // Reload the detail view
+    onInterventionSelected();
+    loadInterventions();
+  } catch(e) {
+    warn.classList.remove('hidden');
+    document.getElementById('ctrl_warningText').textContent = e.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg> Valider le contrôle`;
+  }
+}
+
+// ─── Logout ───────────────────────────────────────────────────────────────────
+function logout() {
+  localStorage.removeItem('cashcash_user');
+  window.location.href = 'index.html';
+}
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+function fmt(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+// ─── Start ────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
