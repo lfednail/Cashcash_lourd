@@ -517,4 +517,4 @@ function stopServer() {
   if (server) server.close(() => console.log('[CashCash API] Server stopped'));
 }
 
-module.exports = { startServer, stopServer, PORT };
+module.exports = { app, startServer, stopServer, PORT };
