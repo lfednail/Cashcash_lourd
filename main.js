@@ -17,7 +17,7 @@ function createWindow() {
       sandbox: false,
       preload: path.join(__dirname, 'preload.js'),
     },
-    icon: path.join(__dirname, 'public', 'images', 'cashcash-logov3.png'),
+    icon: path.join(__dirname, 'public', 'images', 'cashcash-logov4.png'),
     backgroundColor: '#f8fafc',
     show: false,
     titleBarStyle: 'default',
