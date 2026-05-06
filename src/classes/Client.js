@@ -3,29 +3,29 @@
  */
 class Client {
   /**
-   * @param {string} numClient 
+   * @param {string} numeroClient 
    * @param {string} raisonSociale 
    * @param {string} siren 
    * @param {string} codeApe 
    * @param {string} adresse 
-   * @param {string} telClient 
+   * @param {string} telephoneClient 
    * @param {string} email 
    * @param {number} dureeDeplacement 
-   * @param {number} distanceKm 
+   * @param {number} distanceKM 
    */
-  constructor(numClient, raisonSociale, siren, codeApe, adresse, telClient, email, dureeDeplacement, distanceKm) {
-    this._numClient = numClient;
-    this._raisonSociale = raisonSociale;
-    this._siren = siren;
-    this._codeApe = codeApe;
-    this._adresse = adresse;
-    this._telClient = telClient;
-    this._email = email;
-    this._dureeDeplacement = dureeDeplacement;
-    this._distanceKm = distanceKm;
+  constructor(numeroClient, raisonSociale, siren, codeApe, adresse, telephoneClient, email, dureeDeplacement, distanceKM) {
+    this.numeroClient = numeroClient;
+    this.raisonSociale = raisonSociale;
+    this.siren = siren;
+    this.codeApe = codeApe;
+    this.adresse = adresse;
+    this.telephoneClient = telephoneClient;
+    this.email = email;
+    this.dureeDeplacement = dureeDeplacement;
+    this.distanceKM = distanceKM;
     
-    this._lesMateriels = []; // Collection de Materiel
-    this._leContrat = null;  // Instance de ContratMaintenance
+    this.lesMateriels = []; // Collection de Materiel
+    this.leContrat = null;  // Instance de ContratMaintenance
   }
 
   /**
@@ -33,7 +33,7 @@ class Client {
    * @returns {Array} Collection de Materiel.
    */
   getMateriels() {
-    return this._lesMateriels;
+    return this.lesMateriels;
   }
 
   /**
@@ -42,7 +42,7 @@ class Client {
    */
   getMaterielsSousContrat() {
     if (!this.estAssure()) return [];
-    return this._leContrat._lesMaterielsAssures;
+    return this.leContrat.lesMaterielsAssures;
   }
 
   /**
@@ -50,7 +50,7 @@ class Client {
    * @returns {boolean}
    */
   estAssure() {
-    return this._leContrat !== null && this._leContrat.estValide();
+    return this.leContrat !== null && this.leContrat.estValide();
   }
 }
 

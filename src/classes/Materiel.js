@@ -3,20 +3,20 @@
  */
 class Materiel {
   /**
-   * @param {string} numSerie 
+   * @param {string} numeroSerie 
    * @param {string} dateVente 
    * @param {string} dateInstallation
    * @param {number} prixVente 
    * @param {string} emplacement 
    * @param {TypeMateriel} leType 
    */
-  constructor(numSerie, dateVente, dateInstallation, prixVente, emplacement, leType) {
-    this._numSerie = numSerie;
-    this._dateVente = dateVente;
-    this._dateInstallation = dateInstallation;
-    this._prixVente = prixVente;
-    this._emplacement = emplacement;
-    this._leType = leType;
+  constructor(numeroSerie, dateVente, dateInstallation, prixVente, emplacement, leType) {
+    this.numeroSerie = numeroSerie;
+    this.dateVente = dateVente;
+    this.dateInstallation = dateInstallation;
+    this.prixVente = prixVente;
+    this.emplacement = emplacement;
+    this.leType = leType;
   }
 
   /**
@@ -24,8 +24,8 @@ class Materiel {
    * @param {number} [nbJoursRestants] - Optionnel: Nombre de jours avant échéance du contrat.
    * @returns {string} Fragment XML.
    */
-  xmlMateriel(nbJoursRestants = null) {
-    const type = this._leType;
+  genererXmlMateriel(nbJoursRestants = null) {
+    const type = this.leType;
     const famille = type.laFamille;
     
     // Formatage des dates pour l'XML (JJ-MM-AA)
@@ -38,13 +38,13 @@ class Materiel {
       return `${dd}-${mm}-${yy}`;
     };
 
-    let xml = `    <materiel numSerie="${this._numSerie}">\n`;
+    let xml = `    <materiel numSerie="${this.numeroSerie}">\n`;
     xml += `      <type refInterne="${type.referenceInterne}" libelle="${type.libelleTypeMateriel}" />\n`;
     xml += `      <famille codeFamille="${famille.codeFamille}" libelle="${famille.libelleFamille}" />\n`;
-    xml += `      <date_vente>${fmtDate(this._dateVente)}</date_vente>\n`;
-    xml += `      <date_installation>${fmtDate(this._dateInstallation)}</date_installation>\n`;
-    xml += `      <prix_vente>${this._prixVente}</prix_vente>\n`;
-    xml += `      <emplacement>${this._emplacement}</emplacement>\n`;
+    xml += `      <date_vente>${fmtDate(this.dateVente)}</date_vente>\n`;
+    xml += `      <date_installation>${fmtDate(this.dateInstallation)}</date_installation>\n`;
+    xml += `      <prix_vente>${this.prixVente}</prix_vente>\n`;
+    xml += `      <emplacement>${this.emplacement}</emplacement>\n`;
     if (nbJoursRestants !== null) {
       xml += `      <nbJourAvantEcheance>${nbJoursRestants}</nbJourAvantEcheance>\n`;
     }

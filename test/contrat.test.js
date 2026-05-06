@@ -25,13 +25,13 @@ describe('Classe ContratMaintenance', () => {
     const signature = '2023-01-01';
     const contrat = new ContratMaintenance('C1', signature, '2024-01-01');
     
-    const matValide = { _dateInstallation: '2023-01-05' };
-    const matInvalide = { _dateInstallation: '2022-12-30' };
+    const matValide = { dateInstallation: '2023-01-05' };
+    const matInvalide = { dateInstallation: '2022-12-30' };
     
     contrat.ajouteMateriel(matValide);
     contrat.ajouteMateriel(matInvalide);
     
-    expect(contrat._lesMaterielsAssures.length).toBe(1);
-    expect(contrat._lesMaterielsAssures[0]).toBe(matValide);
+    expect(contrat.lesMaterielsAssures.length).toBe(1);
+    expect(contrat.lesMaterielsAssures[0]).toBe(matValide);
   });
 });

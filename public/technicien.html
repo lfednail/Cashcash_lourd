@@ -248,27 +248,27 @@
       </button>
     </div>
     <div class="modal-body">
-      <input type="hidden" id="ctrl_intervent"/>
-      <input type="hidden" id="ctrl_serie"/>
+      <input type="hidden" id="controleIntervention"/>
+      <input type="hidden" id="controleSerie"/>
 
       <div style="background:var(--bg-app);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:4px">
-        <div style="font-weight:700;color:var(--text-primary)" id="ctrl_materielName">—</div>
-        <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px" id="ctrl_materielInfo">—</div>
+        <div style="font-weight:700;color:var(--text-primary)" id="controleNomMateriel">—</div>
+        <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px" id="controleInfoMateriel">—</div>
       </div>
 
       <div class="form-group">
         <label class="form-label">Temps passé (minutes) *</label>
-        <input type="number" class="form-control" id="ctrl_temps" placeholder="Ex: 45" min="0" max="999"/>
+        <input type="number" class="form-control" id="controleTemps" placeholder="Ex: 45" min="0" max="999"/>
       </div>
 
       <div class="form-group">
         <label class="form-label">Commentaire / Observations</label>
-        <textarea class="form-control" id="ctrl_commentaire" rows="4" placeholder="Décrivez les actions effectuées, les anomalies constatées..."></textarea>
+        <textarea class="form-control" id="controleCommentaire" rows="4" placeholder="Décrivez les actions effectuées, les anomalies constatées..."></textarea>
       </div>
 
-      <div id="ctrl_warning" class="db-error-banner hidden">
+      <div id="controleWarning" class="db-error-banner hidden">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <span id="ctrl_warningText"></span>
+        <span id="controleWarningText"></span>
       </div>
     </div>
     <div class="modal-footer">
@@ -692,26 +692,26 @@ async function onInterventionSelected() {
 }
 
 function openControleModal(interventId, serie, nom, emplacement, contrat, temps, commentaire) {
-  document.getElementById('ctrl_intervent').value = interventId;
-  document.getElementById('ctrl_serie').value = serie;
-  document.getElementById('ctrl_materielName').textContent = nom;
-  document.getElementById('ctrl_materielInfo').textContent = `${serie} · ${emplacement}${contrat ? ' · Contrat: ' + contrat : ''}`;
-  document.getElementById('ctrl_temps').value = temps || '';
-  document.getElementById('ctrl_commentaire').value = commentaire || '';
-  document.getElementById('ctrl_warning').classList.add('hidden');
+  document.getElementById('controleIntervention').value = interventId;
+  document.getElementById('controleSerie').value = serie;
+  document.getElementById('controleNomMateriel').textContent = nom;
+  document.getElementById('controleInfoMateriel').textContent = `${serie} · ${emplacement}${contrat ? ' · Contrat: ' + contrat : ''}`;
+  document.getElementById('controleTemps').value = temps || '';
+  document.getElementById('controleCommentaire').value = commentaire || '';
+  document.getElementById('controleWarning').classList.add('hidden');
   openModal('modalControle');
 }
 
 async function submitControle() {
-  const NumeroIntervent = parseInt(document.getElementById('ctrl_intervent').value);
-  const NumeroSerieMateriel = document.getElementById('ctrl_serie').value;
-  const TempsPasse = parseInt(document.getElementById('ctrl_temps').value) || 0;
-  const Commentaire = document.getElementById('ctrl_commentaire').value.trim();
-  const warn = document.getElementById('ctrl_warning');
+  const NumeroIntervent = parseInt(document.getElementById('controleIntervention').value);
+  const NumeroSerieMateriel = document.getElementById('controleSerie').value;
+  const TempsPasse = parseInt(document.getElementById('controleTemps').value) || 0;
+  const Commentaire = document.getElementById('controleCommentaire').value.trim();
+  const warn = document.getElementById('controleWarning');
 
   if (!TempsPasse && TempsPasse !== 0) {
     warn.classList.remove('hidden');
-    document.getElementById('ctrl_warningText').textContent = 'Veuillez saisir le temps passé.';
+    document.getElementById('controleWarningText').textContent = 'Veuillez saisir le temps passé.';
     return;
   }
 
@@ -732,7 +732,7 @@ async function submitControle() {
     loadInterventions();
   } catch(e) {
     warn.classList.remove('hidden');
-    document.getElementById('ctrl_warningText').textContent = e.message;
+    document.getElementById('controleWarningText').textContent = e.message;
   } finally {
     btn.disabled = false;
     btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg> Valider le contrôle`;

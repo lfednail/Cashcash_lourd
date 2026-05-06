@@ -14,12 +14,12 @@ describe('Classe Materiel', () => {
   });
 
   test('doit créer une instance de matériel', () => {
-    expect(materiel._numSerie).toBe('S123');
-    expect(materiel._prixVente).toBe(1500);
+    expect(materiel.numeroSerie).toBe('S123');
+    expect(materiel.prixVente).toBe(1500);
   });
 
   test('xmlMateriel doit retourner un fragment XML valide', () => {
-    const xml = materiel.xmlMateriel(10);
+    const xml = materiel.genererXmlMateriel(10);
     expect(xml).toContain('<materiel numSerie="S123">');
     expect(xml).toContain('<type refInterne="T1" libelle="Serveur" />');
     expect(xml).toContain('<famille codeFamille="F1" libelle="Informatique" />');
@@ -27,7 +27,7 @@ describe('Classe Materiel', () => {
   });
 
   test('xmlMateriel doit fonctionner sans nbJoursRestants', () => {
-    const xml = materiel.xmlMateriel();
+    const xml = materiel.genererXmlMateriel();
     expect(xml).not.toContain('<nbJourAvantEcheance>');
   });
 });

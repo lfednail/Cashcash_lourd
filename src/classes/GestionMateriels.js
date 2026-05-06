@@ -13,7 +13,7 @@ class GestionMateriels {
    * @param {PersistanceSQL} lesDonnees - Instance de persistance à utiliser.
    */
   constructor(lesDonnees) {
-    this._donnees = lesDonnees;
+    this.donnees = lesDonnees;
   }
 
   /**
@@ -23,50 +23,50 @@ class GestionMateriels {
    */
   async getClient(idClient) {
     // 1. Charger les données de base du client
-    const clientData = await this._donnees.chargerDepuisBase(idClient, 'Client');
+    const clientData = await this.donnees.chargerDepuisBase(idClient, 'Client');
     if (!clientData) return null;
 
     const client = new Client(
-      clientData.numeroClient,
-      clientData.raisonSociale,
-      clientData.siren,
-      clientData.codeApe,
-      clientData.adresse,
-      clientData.telephoneClient,
-      clientData.email,
-      clientData.dureeDeplacement,
-      clientData.distanceKM
+      clientData.NumeroClient,
+      clientData.RaisonSociale,
+      clientData.Siren,
+      clientData.CodeApe,
+      clientData.Adresse,
+      clientData.TelephoneClient,
+      clientData.Email,
+      clientData.DureeDeplacement,
+      clientData.DistanceKM
     );
 
     // 2. Charger les contrats du client (simplifié à un seul pour AP2)
-    const [contratData] = await this._donnees.pool.query(
+    const [contratData] = await this.donnees.pool.query(
       'SELECT * FROM contratmaintenance WHERE numeroClient = ? ORDER BY dateEcheance DESC LIMIT 1',
       [idClient]
     );
     if (contratData.length > 0) {
       const c = contratData[0];
-      client._leContrat = new ContratMaintenance(c.numeroContrat, c.dateSignature, c.dateEcheance);
+      client.leContrat = new ContratMaintenance(c.NumeroContrat, c.DateSignature, c.DateEcheance);
     }
 
     // 3. Charger les matériels et les lier au contrat si applicable
-    const [materielsRows] = await this._donnees.pool.query(`
-      SELECT m.*, tm.libelleTypeMateriel, tm.referenceInterne, f.CodeFamille, f.LibelleFamille
-      FROM materiel m
-      JOIN typemateriel tm ON m.referenceInterneTypeMateriel = tm.referenceInterne
-      JOIN famille f ON tm.CodeFamille = f.CodeFamille
-      WHERE m.numeroClient = ?
+    const [materielsRows] = await this.donnees.pool.query(`
+      SELECT m.*, tm.LibelleTypeMateriel, tm.ReferenceInterne, f.CodeFamille, f.LibelleFamille
+      FROM Materiel m
+      JOIN TypeMateriel tm ON m.ReferenceInterneTypeMateriel = tm.ReferenceInterne
+      JOIN Famille f ON tm.CodeFamille = f.CodeFamille
+      WHERE m.NumeroClient = ?
     `, [idClient]);
 
     for (const row of materielsRows) {
       const famille = new Famille(row.CodeFamille, row.LibelleFamille);
-      const type = new TypeMateriel(row.referenceInterne, row.libelleTypeMateriel, famille);
-      const mat = new Materiel(row.numeroSerie, row.dateVente, row.dateInstallation, row.prixVente, row.emplacement, type);
+      const type = new TypeMateriel(row.ReferenceInterne, row.LibelleTypeMateriel, famille);
+      const mat = new Materiel(row.NumeroSerie, row.DateVente, row.DateInstallation, row.PrixVente, row.Emplacement, type);
       
-      client._lesMateriels.push(mat);
+      client.lesMateriels.push(mat);
       
       // Si le matériel est lié à ce contrat spécifique dans la base
-      if (client._leContrat && row.numeroContrat === client._leContrat._numContrat) {
-        client._leContrat.ajouteMateriel(mat);
+      if (client.leContrat && row.NumeroContrat === client.leContrat.numeroContrat) {
+        client.leContrat.ajouteMateriel(mat);
       }
     }
 
@@ -78,18 +78,18 @@ class GestionMateriels {
    * @param {Client} unClient 
    * @returns {string} Document XML complet.
    */
-  XmlClient(unClient) {
+  genererXmlClient(unClient) {
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<listeMateriel>\n`;
-    xml += `  <materiels idClient="${unClient._numClient}">\n`;
+    xml += `  <materiels idClient="${unClient.numeroClient}">\n`;
     
     // Matériels sous contrat
     const sousContrat = unClient.getMaterielsSousContrat();
-    const nbJours = unClient._leContrat ? unClient._leContrat.getJoursRestants() : null;
+    const nbJours = unClient.leContrat ? unClient.leContrat.getJoursRestants() : null;
     
     xml += `    <sousContrat>\n`;
     for (const mat of sousContrat) {
-      xml += mat.xmlMateriel(nbJours).split('\n').map(l => '  ' + l).join('\n') + '\n';
+      xml += mat.genererXmlMateriel(nbJours).split('\n').map(l => '  ' + l).join('\n') + '\n';
     }
     xml += `    </sousContrat>\n`;
 
@@ -99,7 +99,7 @@ class GestionMateriels {
     
     xml += `    <horsContrat>\n`;
     for (const mat of horsContrat) {
-      xml += mat.xmlMateriel().split('\n').map(l => '  ' + l).join('\n') + '\n';
+      xml += mat.genererXmlMateriel().split('\n').map(l => '  ' + l).join('\n') + '\n';
     }
     xml += `    </horsContrat>\n`;
 
@@ -113,7 +113,7 @@ class GestionMateriels {
    * @param {string} xml 
    * @returns {boolean}
    */
-  static XmlClientValide(xml) {
+  static estXmlClientValide(xml) {
     // Validation de structure simple comme demandé par l'utilisateur
     if (!xml) return false;
     const hasRoot = xml.includes('<listeMateriel>') && xml.includes('</listeMateriel>');

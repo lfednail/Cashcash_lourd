@@ -13,8 +13,8 @@ describe('Classe Client', () => {
   });
 
   test('doit créer une instance de client', () => {
-    expect(client._numClient).toBe('C123');
-    expect(client._raisonSociale).toBe('Ma Société');
+    expect(client.numeroClient).toBe('C123');
+    expect(client.raisonSociale).toBe('Ma Société');
     expect(client.getMateriels()).toEqual([]);
   });
 
@@ -28,7 +28,7 @@ describe('Classe Client', () => {
     nextYear.setFullYear(today.getFullYear() + 1);
     
     const contrat = new ContratMaintenance('CONTRAT1', today.toISOString(), nextYear.toISOString());
-    client._leContrat = contrat;
+    client.leContrat = contrat;
     
     expect(client.estAssure()).toBe(true);
   });

@@ -1,0 +1,18 @@
+flowchart LR
+    gestionnaire((gestionnaire-e))
+    Tech((Technicien))
+
+    subgraph CashCash [Application CashCash Lourd]
+        UC1([Rechercher un client])
+        UC2([Consulter les matériels d'un client])
+        UC3([Consulter la validité des contrats])
+        UC4([Éditer un fichier XML/PDF de suivi])
+    end
+
+    gestionnaire --> UC1
+    gestionnaire --> UC2
+    gestionnaire --> UC3
+    gestionnaire --> UC4
+    
+    Tech --> UC2
+    Tech --> UC3

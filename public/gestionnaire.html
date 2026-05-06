@@ -237,7 +237,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
-                <input type="text" class="form-control" id="searchClients" placeholder="Rechercher un client..." oninput="filterClients(this.value)" style="width:240px"/>
+                <input type="text" class="form-control" id="input-search" placeholder="Rechercher un client..." oninput="filterClients(this.value)" style="width:240px"/>
               </div>
             </div>
           </div>
@@ -384,29 +384,29 @@
     <div class="modal-body">
       <div class="form-group">
         <label class="form-label">Client *</label>
-        <select class="form-control" id="ni_client" onchange="onClientSelected()">
+        <select class="form-control" id="nouveauInterventionClient" onchange="onClientSelected()">
           <option value="">— Sélectionner un client —</option>
         </select>
       </div>
       <div class="form-group">
         <label class="form-label">Technicien *</label>
-        <select class="form-control" id="ni_tech" disabled>
+        <select class="form-control" id="nouveauInterventionTechnicien" disabled>
           <option value="">— Sélectionner d'abord un client —</option>
         </select>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Date de visite *</label>
-          <input type="date" class="form-control" id="ni_date"/>
+          <input type="date" class="form-control" id="nouveauInterventionDate"/>
         </div>
         <div class="form-group">
           <label class="form-label">Heure de visite *</label>
-          <input type="time" class="form-control" id="ni_heure" value="09:00"/>
+          <input type="time" class="form-control" id="nouveauInterventionHeure" value="09:00"/>
         </div>
       </div>
-      <div id="ni_warning" class="db-error-banner hidden">
+      <div id="nouveauInterventionWarning" class="db-error-banner hidden">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <span id="ni_warningText"></span>
+        <span id="nouveauInterventionWarningText"></span>
       </div>
     </div>
     <div class="modal-footer">
@@ -446,7 +446,7 @@ function init() {
   const now = new Date();
   document.getElementById('filterMonth').value = now.getMonth() + 1;
   document.getElementById('filterYear').value = now.getFullYear();
-  document.getElementById('ni_date').valueAsDate = now;
+  document.getElementById('nouveauInterventionDate').valueAsDate = now;
 
   // Load all data
   loadStats();
@@ -624,7 +624,7 @@ async function openClientDetail(id) {
       </div>
     `;
     // Pre-select client in new-intervention modal
-    document.getElementById('ni_client').value = id;
+    document.getElementById('nouveauInterventionClient').value = id;
     
     // Setup XML button
     const btnXML = document.getElementById('btnGenXML');
@@ -749,7 +749,7 @@ function renderInterventions(list, containerId, compact) {
 
 // ─── New Intervention Modal ───────────────────────────────────────────────────
 function fillClientSelect() {
-  const sel = document.getElementById('ni_client');
+  const sel = document.getElementById('nouveauInterventionClient');
   const cur = sel.value;
   sel.innerHTML = '<option value="">— Sélectionner un client —</option>' +
     allClients.map(c => `<option value="${c.NumeroClient}">${c.RaisonSociale}</option>`).join('');
@@ -757,9 +757,9 @@ function fillClientSelect() {
 }
 
 async function onClientSelected() {
-  const clientId = document.getElementById('ni_client').value;
-  const techSel  = document.getElementById('ni_tech');
-  document.getElementById('ni_warning').classList.add('hidden');
+  const clientId = document.getElementById('nouveauInterventionClient').value;
+  const techSel  = document.getElementById('nouveauInterventionTechnicien');
+  document.getElementById('nouveauInterventionWarning').classList.add('hidden');
 
   if (!clientId) {
     techSel.innerHTML = '<option value="">— Sélectionner d\'abord un client —</option>';
@@ -787,20 +787,20 @@ async function onClientSelected() {
 function openModalNewIntervention() {
   closeModal('modalClientDetail');
   fillClientSelect();
-  document.getElementById('ni_warning').classList.add('hidden');
+  document.getElementById('nouveauInterventionWarning').classList.add('hidden');
   openModal('modalNewIntervention');
 }
 
 async function submitNewIntervention() {
-  const NumeroClient = document.getElementById('ni_client').value;
-  const MatriculeTechnicien = document.getElementById('ni_tech').value;
-  const DateVisite  = document.getElementById('ni_date').value;
-  const HeureVisite = document.getElementById('ni_heure').value;
-  const warn = document.getElementById('ni_warning');
+  const NumeroClient = document.getElementById('nouveauInterventionClient').value;
+  const MatriculeTechnicien = document.getElementById('nouveauInterventionTechnicien').value;
+  const DateVisite  = document.getElementById('nouveauInterventionDate').value;
+  const HeureVisite = document.getElementById('nouveauInterventionHeure').value;
+  const warn = document.getElementById('nouveauInterventionWarning');
 
   if (!NumeroClient || !MatriculeTechnicien || !DateVisite || !HeureVisite) {
     warn.classList.remove('hidden');
-    document.getElementById('ni_warningText').textContent = 'Veuillez remplir tous les champs obligatoires.';
+    document.getElementById('nouveauInterventionWarningText').textContent = 'Veuillez remplir tous les champs obligatoires.';
     return;
   }
 
@@ -819,7 +819,7 @@ async function submitNewIntervention() {
     loadStats();
   } catch(e) {
     warn.classList.remove('hidden');
-    document.getElementById('ni_warningText').textContent = e.message;
+    document.getElementById('nouveauInterventionWarningText').textContent = e.message;
   } finally {
     btn.disabled = false;
     btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg> Assigner`;

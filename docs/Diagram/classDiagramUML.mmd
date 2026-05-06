@@ -1,0 +1,41 @@
+classDiagram
+    class Client {
+        -numeroClient: String
+        -nom: String
+        -adresse: String
+        -telephone: String
+        +getNumeroClient()
+        +getNom()
+    }
+    
+    class Materiel {
+        -numeroSerie: String
+        -dateInstallation: Date
+        -prixVente: Float
+        -emplacement: String
+        +getNumeroSerie()
+        +getJoursAvantMaintenance()
+    }
+    
+    class TypeMateriel {
+        -referenceInterne: String
+        -libelleType: String
+    }
+    
+    class Famille {
+        -codeFamille: String
+        -libelleFamille: String
+    }
+    
+    class ContratMaintenance {
+        -numeroContrat: String
+        -dateSignature: Date
+        -dateEcheance: Date
+        +estValide() Boolean
+        +getJoursRestants() Integer
+    }
+    
+    Client "1" -- "0..*" Materiel : "possède"
+    Client "1" -- "0..1" ContratMaintenance : "souscrit"
+    Materiel "*" -- "1" TypeMateriel : "est de type"
+    TypeMateriel "*" -- "1" Famille : "appartient à"

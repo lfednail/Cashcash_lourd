@@ -17,23 +17,51 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── Database Pool ────────────────────────────────────────────────────────────
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'cashcash_final_app',
-  port: process.env.DB_PORT || 3306,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  connectTimeout: 10000,
-});
+const DB_TYPE = process.env.DB_TYPE || 'mysql';
+
+// ─── Database Connection ──────────────────────────────────────────────────────
+let pool;
+if (DB_TYPE === 'postgres') {
+  const { Pool } = require('pg');
+  pool = new Pool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'cashcash_final_app',
+    port: process.env.DB_PORT || 5432,
+  });
+} else {
+  pool = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'cashcash_final_app',
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+  });
+}
+
+/**
+ * Wrapper de requête universel (MySQL / Postgres)
+ */
+async function dbQuery(sql, params = []) {
+  if (DB_TYPE === 'postgres') {
+    let i = 1;
+    const pgSql = sql.replace(/\?/g, () => `$${i++}`);
+    const res = await pool.query(pgSql, params);
+    return [res.rows, null];
+  } else {
+    return await pool.query(sql, params);
+  }
+}
 
 // Initialisation Service Jalon 3
 const persistance = new PersistanceSQL(
+  DB_TYPE,
   process.env.DB_HOST || 'localhost',
-  process.env.DB_PORT || 3306,
+  process.env.DB_PORT || (DB_TYPE === 'postgres' ? 5432 : 3306),
   process.env.DB_NAME || 'cashcash_final_app',
   process.env.DB_USER || 'root',
   process.env.DB_PASSWORD || ''
@@ -51,7 +79,7 @@ const authenticate = (req, res, next) => {
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get('/api/health', async (_req, res) => {
   try {
-    await pool.query('SELECT 1');
+    await dbQuery('SELECT 1');
     res.json({ status: 'ok', db: 'connected' });
   } catch (e) {
     res.status(500).json({ status: 'error', db: 'disconnected', message: e.message });
@@ -90,7 +118,7 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ error: 'Email et mot de passe requis' });
     }
 
-    const [rows] = await pool.query(
+    const [rows] = await dbQuery(
       `SELECT e.*, a.NomAgence, a.AdresseAgence, a.TelephoneAgence
        FROM Employe e
        JOIN Agence a ON e.NumeroAgence = a.NumeroAgence
@@ -120,7 +148,7 @@ app.post('/api/auth/login', async (req, res) => {
     // Fetch Technicien details if applicable
     let techInfo = null;
     if (user.role === 'TECHNICIEN') {
-      const [techRows] = await pool.query(
+      const [techRows] = await dbQuery(
         'SELECT * FROM Technicien WHERE Matricule = ?',
         [unMatricule]
       );
@@ -168,7 +196,7 @@ app.get('/api/gestionnaire/stats', authenticate, async (req, res) => {
         AND YEAR(i.DateVisite) = ?
     `;
     
-    const [result] = await pool.query(sql, [
+    const [result] = await dbQuery(sql, [
       parseInt(agenceId),
       parseInt(month),
       parseInt(year),
@@ -184,7 +212,7 @@ app.get('/api/gestionnaire/stats', authenticate, async (req, res) => {
 app.get('/api/gestionnaire/clients', authenticate, async (req, res) => {
   try {
     const { agenceId } = req.query;
-    const [clients] = await pool.query(
+    const [clients] = await dbQuery(
       `SELECT c.*,
          COUNT(DISTINCT cm.NumeroContrat) AS nb_contrats,
          COUNT(DISTINCT m.NumeroSerie)    AS nb_materiels,
@@ -208,7 +236,7 @@ app.get('/api/gestionnaire/clients', authenticate, async (req, res) => {
 app.get('/api/gestionnaire/techniciens', authenticate, async (req, res) => {
   try {
     const { agenceId } = req.query;
-    const [techniciens] = await pool.query(
+    const [techniciens] = await dbQuery(
       `SELECT e.Matricule, e.NomEmploye, e.PrenomEmploye, e.AdresseEmploye, e.DateEmbauche,
               t.TelephoneMobile, t.Qualification, t.DateObtention,
               COUNT(DISTINCT i.NumeroIntervent) AS nb_interventions
@@ -231,7 +259,7 @@ app.get('/api/gestionnaire/techniciens', authenticate, async (req, res) => {
 app.get('/api/gestionnaire/techniciens-for-client', authenticate, async (req, res) => {
   try {
     const { clientId } = req.query;
-    const [techniciens] = await pool.query(
+    const [techniciens] = await dbQuery(
       `SELECT e.Matricule, e.NomEmploye, e.PrenomEmploye, t.Qualification
        FROM Employe e
        JOIN Technicien t ON e.Matricule = t.Matricule
@@ -250,7 +278,7 @@ app.get('/api/gestionnaire/techniciens-for-client', authenticate, async (req, re
 app.get('/api/gestionnaire/interventions', authenticate, async (req, res) => {
   try {
     const { agenceId } = req.query;
-    const [interventions] = await pool.query(
+    const [interventions] = await dbQuery(
       `SELECT i.*,
               CONCAT(e.PrenomEmploye, ' ', e.NomEmploye) AS technicienNom,
               c.RaisonSociale                              AS clientNom,
@@ -280,7 +308,7 @@ app.post('/api/gestionnaire/interventions', authenticate, async (req, res) => {
     if (!MatriculeTechnicien || !NumeroClient || !DateVisite || !HeureVisite) {
       return res.status(400).json({ error: 'Tous les champs sont obligatoires' });
     }
-    const [result] = await pool.query(
+    const [result] = await dbQuery(
       'INSERT INTO Intervention (DateVisite, HeureVisite, MatriculeTechnicien, NumeroClient) VALUES (?, ?, ?, ?)',
       [DateVisite, HeureVisite, MatriculeTechnicien, NumeroClient]
     );
@@ -296,8 +324,8 @@ app.post('/api/gestionnaire/interventions', authenticate, async (req, res) => {
 app.get('/api/gestionnaire/client/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-    const [client] = await pool.query('SELECT * FROM Client WHERE NumeroClient = ?', [id]);
-    const [contrats] = await pool.query(
+    const [client] = await dbQuery('SELECT * FROM Client WHERE NumeroClient = ?', [id]);
+    const [contrats] = await dbQuery(
       `SELECT cm.*, tc.DelaiIntervention, tc.TauxApplicable,
               COUNT(m.NumeroSerie) AS nb_materiels
        FROM ContratMaintenance cm
@@ -308,7 +336,7 @@ app.get('/api/gestionnaire/client/:id', authenticate, async (req, res) => {
        ORDER BY cm.DateEcheance DESC`,
       [id]
     );
-    const [materiels] = await pool.query(
+    const [materiels] = await dbQuery(
       `SELECT m.*, tm.LibelleTypeMateriel, cm.NumeroContrat, cm.DateEcheance, tc.RefTypeContrat
        FROM Materiel m
        JOIN TypeMateriel tm ON m.ReferenceInterneTypeMateriel = tm.ReferenceInterne
@@ -331,7 +359,7 @@ app.get('/api/gestionnaire/client/:id/xml', authenticate, async (req, res) => {
     const client = await gestionMateriels.getClient(id);
     if (!client) return res.status(404).json({ error: 'Client introuvable' });
 
-    const xml = gestionMateriels.XmlClient(client);
+    const xml = gestionMateriels.genererXmlClient(client);
     res.json({ xml, fileName: `client_${id}_materiels.xml` });
   } catch (error) {
     console.error('[XML Error]', error);
@@ -344,7 +372,7 @@ app.get('/api/gestionnaire/relances-pdf', authenticate, async (req, res) => {
   try {
     const { agenceId } = req.query;
     // Clients dont le contrat expire sous 60 jours
-    const [rawRows] = await pool.query(
+    const [rawRows] = await dbQuery(
       `SELECT c.*, cm.numeroContrat, cm.dateEcheance
        FROM client c
        JOIN contratmaintenance cm ON c.numeroClient = cm.numeroClient
@@ -390,7 +418,7 @@ app.get('/api/gestionnaire/relances-pdf', authenticate, async (req, res) => {
 app.get('/api/technicien/interventions', authenticate, async (req, res) => {
   try {
     const { matricule } = req.query;
-    const [interventions] = await pool.query(
+    const [interventions] = await dbQuery(
       `SELECT i.*,
               c.RaisonSociale, c.Adresse, c.TelephoneClient, c.Email, c.DureeDeplacement, c.DistanceKM,
               COUNT(ct.NumeroSerieMateriel) AS nb_controles
@@ -415,7 +443,7 @@ app.get('/api/technicien/search', authenticate, async (req, res) => {
     const { q, agenceId } = req.query;
     if (!q || q.trim().length < 2) return res.json([]);
     const search = `%${q.trim()}%`;
-    const [clients] = await pool.query(
+    const [clients] = await dbQuery(
       `SELECT c.*, COUNT(DISTINCT cm.NumeroContrat) AS nb_contrats
        FROM Client c
        LEFT JOIN ContratMaintenance cm ON c.NumeroClient = cm.NumeroClient
@@ -436,7 +464,7 @@ app.get('/api/technicien/intervention/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
     // Intervention info
-    const [interventions] = await pool.query(
+    const [interventions] = await dbQuery(
       `SELECT i.*, c.RaisonSociale, c.Adresse, c.TelephoneClient, c.Email
        FROM Intervention i
        JOIN Client c ON i.NumeroClient = c.NumeroClient
@@ -446,7 +474,7 @@ app.get('/api/technicien/intervention/:id', authenticate, async (req, res) => {
     if (interventions.length === 0) return res.status(404).json({ error: 'Intervention introuvable' });
 
     // Materials for the client, including Controler status for this intervention
-    const [materiels] = await pool.query(
+    const [materiels] = await dbQuery(
       `SELECT m.*, tm.LibelleTypeMateriel,
               cm.NumeroContrat, cm.DateEcheance, tc.RefTypeContrat, tc.DelaiIntervention,
               ct.TempsPasse, ct.Commentaire,
@@ -475,18 +503,18 @@ app.post('/api/technicien/controler', authenticate, async (req, res) => {
       return res.status(400).json({ error: 'Champs obligatoires manquants' });
     }
 
-    const [existing] = await pool.query(
+    const [existing] = await dbQuery(
       'SELECT 1 FROM Controler WHERE NumeroIntervent = ? AND NumeroSerieMateriel = ?',
       [NumeroIntervent, NumeroSerieMateriel]
     );
 
     if (existing.length > 0) {
-      await pool.query(
+      await dbQuery(
         'UPDATE Controler SET TempsPasse = ?, Commentaire = ? WHERE NumeroIntervent = ? AND NumeroSerieMateriel = ?',
         [TempsPasse || 0, Commentaire || '', NumeroIntervent, NumeroSerieMateriel]
       );
     } else {
-      await pool.query(
+      await dbQuery(
         'INSERT INTO Controler (NumeroIntervent, NumeroSerieMateriel, TempsPasse, Commentaire) VALUES (?, ?, ?, ?)',
         [NumeroIntervent, NumeroSerieMateriel, TempsPasse || 0, Commentaire || '']
       );

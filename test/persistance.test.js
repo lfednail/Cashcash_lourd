@@ -15,7 +15,7 @@ describe('Classe PersistanceSQL', () => {
   let persistance;
 
   beforeEach(() => {
-    persistance = new PersistanceSQL('localhost', 3306, 'db', 'user', 'pass');
+    persistance = new PersistanceSQL('mysql', 'localhost', 3306, 'db', 'user', 'pass');
   });
 
   test('doit créer un pool avec la configuration correcte', () => {
@@ -26,12 +26,14 @@ describe('Classe PersistanceSQL', () => {
   });
 
   test('chargerDepuisBase doit appeler la requête correcte pour Client', async () => {
+    // Mock the query method on the pool directly as per refactored PersistanceSQL
+    persistance.pool.query = jest.fn().mockResolvedValue([[{ NumeroClient: 'C1', RaisonSociale: 'Test' }]]);
     const data = await persistance.chargerDepuisBase('C1', 'Client');
-    expect(data.numeroClient).toBe('C1');
+    expect(data.NumeroClient).toBe('C1');
   });
 
-  test('close doit fermer le pool', async () => {
-    await persistance.close();
+  test('fermer doit fermer le pool', async () => {
+    await persistance.fermer();
     expect(persistance.pool.end).toHaveBeenCalled();
   });
 });

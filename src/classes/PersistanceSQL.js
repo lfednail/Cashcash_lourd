@@ -1,80 +1,79 @@
 const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 
 /**
- * Classe gérant la persistance des objets métier dans la base de données MySQL.
- * Respecte les spécifications techniques du Jalon 3.
+ * Classe gérant la persistance des objets métier.
+ * Supporte désormais MySQL et PostgreSQL pour la mise en conformité VDEV.
  */
 class PersistanceSQL {
   /**
-   * Constructeur de la classe PersistanceSQL.
-   * @param {string} ipBase - Adresse IP ou hôte de la base de données.
-   * @param {number} port - Port de connexion.
-   * @param {string} nomBaseDonnee - Nom de la base de données.
-   * @param {string} user - Utilisateur.
-   * @param {string} password - Mot de passe.
+   * @param {string} typeBase - 'mysql' ou 'postgres'
+   * @param {string} adresseIp - Hôte
+   * @param {number} port - Port
+   * @param {string} nomBaseDonnees - Nom DB
+   * @param {string} utilisateur - Utilisateur
+   * @param {string} motDePasse - MDP
    */
-  constructor(ipBase, port, nomBaseDonnee, user, password) {
-    this.pool = mysql.createPool({
-      host: ipBase,
-      port: port,
-      database: nomBaseDonnee,
-      user: user,
-      password: password,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
-    });
-  }
-
-  /**
-   * Stocke les données de l'objet dans la base de données.
-   * @param {Object} unObjet - L'objet métier à sauvegarder.
-   * @returns {Promise<void>}
-   */
-  async rangerDansBase(unObjet) {
-    // Implémentation générique dépendant du type d'objet
-    // Note: Pour AP2, on se concentre sur les objets spécifiés (Client, Materiel, etc.)
-    console.log(`[PersistanceSQL] Sauvegarde de l'objet type: ${unObjet.constructor.name}`);
-    // Logique de mapping ORM simplifiée ici si nécessaire
-  }
-
-  /**
-   * Retourne l'objet de la classe nomClasse dont l'identifiant est "id".
-   * @param {string} id - L'identifiant de l'objet.
-   * @param {string} nomClasse - Nom de la classe de l'objet à charger.
-   * @returns {Promise<Object|null>} L'objet chargé ou null si non trouvé.
-   */
-  async chargerDepuisBase(id, nomClasse) {
-    const conn = await this.pool.getConnection();
-    try {
-      if (nomClasse === 'Client') {
-        const [rows] = await conn.query('SELECT * FROM client WHERE numeroClient = ?', [id]);
-        return rows[0] || null;
-      }
-      if (nomClasse === 'Materiel') {
-        const [rows] = await conn.query('SELECT * FROM materiel WHERE numeroSerie = ?', [id]);
-        return rows[0] || null;
-      }
-      if (nomClasse === 'Famille') {
-        const [rows] = await conn.query('SELECT * FROM famille WHERE CodeFamille = ?', [id]);
-        return rows[0] || null;
-      }
-      if (nomClasse === 'TypeMateriel') {
-        const [rows] = await conn.query('SELECT * FROM typemateriel WHERE referenceInterne = ?', [id]);
-        return rows[0] || null;
-      }
-      // Ajouter les autres classes au fur et à mesure
-      return null;
-    } finally {
-      conn.release();
+  constructor(typeBase, adresseIp, port, nomBaseDonnees, utilisateur, motDePasse) {
+    this.typeBase = typeBase || 'mysql';
+    
+    if (this.typeBase === 'postgres') {
+      this.pool = new Pool({
+        host: adresseIp,
+        port: port,
+        database: nomBaseDonnees,
+        user: utilisateur,
+        password: motDePasse,
+      });
+    } else {
+      this.pool = mysql.createPool({
+        host: adresseIp,
+        port: port,
+        database: nomBaseDonnees,
+        user: utilisateur,
+        password: motDePasse,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0
+      });
     }
   }
 
   /**
-   * Ferme le pool de connexion.
+   * Exécute une requête SQL de manière agnostique au SGBD.
+   * Gère la différence de syntaxe des placeholders (? vs $1).
    */
-  async close() {
-    await this.pool.end();
+  async executeQuery(sql, params = []) {
+    let finalSql = sql;
+    if (this.typeBase === 'postgres') {
+      // Conversion des ? en $1, $2...
+      let i = 1;
+      finalSql = sql.replace(/\?/g, () => `$${i++}`);
+      const res = await this.pool.query(finalSql, params);
+      return [res.rows, null];
+    } else {
+      return await this.pool.query(finalSql, params);
+    }
+  }
+
+  async chargerDepuisBase(id, nomClasse) {
+    const table = nomClasse.toLowerCase();
+    const pk = (nomClasse === 'Client') ? 'numeroClient' : 
+               (nomClasse === 'Materiel') ? 'numeroSerie' : 
+               (nomClasse === 'Famille') ? 'codeFamille' : 
+               (nomClasse === 'TypeMateriel') ? 'referenceInterne' : 'id';
+    
+    const sql = `SELECT * FROM ${table} WHERE ${pk} = ?`;
+    const [rows] = await this.executeQuery(sql, [id]);
+    return rows[0] || null;
+  }
+
+  async fermer() {
+    if (this.typeBase === 'postgres') {
+      await this.pool.end();
+    } else {
+      await this.pool.end();
+    }
   }
 }
 

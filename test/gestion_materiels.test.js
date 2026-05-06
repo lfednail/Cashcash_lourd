@@ -19,13 +19,13 @@ describe('Classe GestionMateriels', () => {
     const validXml = '<listeMateriel><materiels idClient="1">...</materiels></listeMateriel>';
     const invalidXml = '<somethingElse></somethingElse>';
     
-    expect(GestionMateriels.XmlClientValide(validXml)).toBe(true);
-    expect(GestionMateriels.XmlClientValide(invalidXml)).toBe(false);
+    expect(GestionMateriels.estXmlClientValide(validXml)).toBe(true);
+    expect(GestionMateriels.estXmlClientValide(invalidXml)).toBe(false);
   });
 
   test('XmlClient doit générer un document XML complet', () => {
     const client = new Client('C1', 'Test', '123', 'APE', 'Adr', 'Tel', 'Email', 10, 5);
-    const xml = gestion.XmlClient(client);
+    const xml = gestion.genererXmlClient(client);
     
     expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
     expect(xml).toContain('<listeMateriel>');

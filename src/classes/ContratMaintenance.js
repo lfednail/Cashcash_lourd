@@ -3,15 +3,15 @@
  */
 class ContratMaintenance {
   /**
-   * @param {string} numContrat 
+   * @param {string} numeroContrat 
    * @param {string} dateSignature 
    * @param {string} dateEcheance 
    */
-  constructor(numContrat, dateSignature, dateEcheance) {
-    this._numContrat = numContrat;
-    this._dateSignature = new Date(dateSignature);
-    this._dateEcheance = new Date(dateEcheance);
-    this._lesMaterielsAssures = []; // Collection de Materiel
+  constructor(numeroContrat, dateSignature, dateEcheance) {
+    this.numeroContrat = numeroContrat;
+    this.dateSignature = new Date(dateSignature);
+    this.dateEcheance = new Date(dateEcheance);
+    this.lesMaterielsAssures = []; // Collection de Materiel
   }
 
   /**
@@ -20,7 +20,7 @@ class ContratMaintenance {
    */
   getJoursRestants() {
     const now = new Date();
-    const diffTime = this._dateEcheance - now;
+    const diffTime = this.dateEcheance - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays > 0 ? diffDays : 0;
   }
@@ -31,7 +31,7 @@ class ContratMaintenance {
    */
   estValide() {
     const now = new Date();
-    return now >= this._dateSignature && now <= this._dateEcheance;
+    return now >= this.dateSignature && now <= this.dateEcheance;
   }
 
   /**
@@ -39,9 +39,9 @@ class ContratMaintenance {
    * @param {Materiel} unMateriel 
    */
   ajouteMateriel(unMateriel) {
-    const dateInst = new Date(unMateriel._dateInstallation);
-    if (this._dateSignature <= dateInst) {
-      this._lesMaterielsAssures.push(unMateriel);
+    const dateInst = new Date(unMateriel.dateInstallation);
+    if (this.dateSignature <= dateInst) {
+      this.lesMaterielsAssures.push(unMateriel);
     }
   }
 }
